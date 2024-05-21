@@ -24,15 +24,15 @@ classdef ResistanceTensor
             for i = 1:3
                 K_t(i, i) = ( 16 * pi ) / ( chi + halfAxes(i) ^ 2 * alpha(i) );
            
-                j = mod(i + 1, 4);
-                k = mod(i + 2, 4);
+                j = mod(i, 3) + 1;
+                k = mod(i + 1, 3) + 1;
                 K_r(i, i) = ( 16 * pi * ( halfAxes(j) ^ 2 + halfAxes(k) ^ 2 )) ...
                     / ( 3 * ( halfAxes(j) ^ 2 * alpha(j) + halfAxes(k) ^ 2 * alpha(k) ));
             end
 
             K = zeros(6);
             K(1:3, 1:3) = K_t;
-            K(3:6, 3:6) = K_r;
+            K(4:6, 4:6) = K_r;
         end
     end
 end

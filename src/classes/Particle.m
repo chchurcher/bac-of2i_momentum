@@ -10,8 +10,7 @@ classdef Particle
     
     methods
         function obj = Particle(diffusionTensor)
-            %Simulation Construct an instance of this class
-            %   diffu
+            %Construct an instance of a particle
             obj.diffusionTensor = diffusionTensor;
             obj.position = zeros(3, 1);
             obj.rotation = zeros(3, 1);
