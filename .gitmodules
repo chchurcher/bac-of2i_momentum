@@ -1,0 +1,3 @@
+[submodule "external/nanobem24"]
+	path = external/nanobem24
+	url = https://github.com/chchurcher/nanobem24.git
