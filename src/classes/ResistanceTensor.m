@@ -34,9 +34,5 @@ classdef ResistanceTensor
             K(1:3, 1:3) = K_t;
             K(4:6, 4:6) = K_r;
         end
-
-        function D = diffusionMatrix(K)
-            D = Constants.k_B * Constants.T / Constants.eta_water * inv(K); %#ok<MINV>
-        end
     end
 end
