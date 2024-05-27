@@ -29,6 +29,8 @@ classdef CoordinateTransformation
 
             rotMat = rotMatX * rotMatY * rotMatZ;
         end
+
+        function 
     end
 end
 
