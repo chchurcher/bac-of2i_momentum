@@ -19,7 +19,7 @@ K = ResistanceTensor.ellipsoid(halfAxis);
 D = ResistanceTensor.diffusionMatrix(K);
 
 particle = Particle(D);
-trajectory = Trajectory(halfAxis);
+trajectory = Trajectory();
 
 mu = zeros(6, 1);
 w = mvnrnd(mu, D, numel(t));
@@ -32,21 +32,3 @@ for i = 1:numel(t)
 end
 
 trajectory.visualize();
-
-% figure;
-% yyaxis left;
-% plot( t, trayectory(:,1), 'o-', 'Color', 'r' ); hold on
-% plot( t, trayectory(:,2), 'o-', 'Color', 'g' ); hold on
-% plot( t, trayectory(:,3), 'o-', 'Color', 'b' );
-% ylabel( 'Position (m)' );
-% 
-% yyaxis right;
-% plot( t, trayectory(:,4), 'x-', 'Color', 'r' ); hold on
-% plot( t, trayectory(:,5), 'x-', 'Color', 'g' ); hold on
-% plot( t, trayectory(:,6), 'x-', 'Color', 'b' );
-% ylabel( 'Angle (rad)' );
-% 
-% 
-% title( ' Simulation number ' + string(sim) );
-% xlabel( 'Time (s)' );
-% legend( 'x', 'y', 'z', 'alpha', 'beta', 'gamma' );
