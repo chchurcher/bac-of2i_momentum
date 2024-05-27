@@ -24,8 +24,8 @@ classdef Trajectory
 
         function visualize(obj)
             %VISUALIZE Trajectory in a quiver3 chart
-            vecs = Transformation.getVectors(obj.positions, obj.rotations);
-            quiver3(vecs);
+            [X, Y, Z, U, V, W] = Transformation.getVectors(obj.positions, obj.rotations);
+            quiver3(X, Y, Z, U, V, W);
             xlabel('X');
             ylabel('Y');
             zlabel('Z');

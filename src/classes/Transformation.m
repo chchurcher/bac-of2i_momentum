@@ -23,23 +23,23 @@ classdef Transformation
         end
 
         function rotatedVector = rotateUnitVectorZ(angle)
-            rotatedVector = getRotationMatrix(-angle) * [0, 0, 1];
+            rotatedVector = Transformation.getRotationMatrix(-angle) * [0; 0; 1];
         end
 
         function rotatedVectors = rotateVectors(angles)
             [~, num_angles] = size(angles);
             rotatedVectors = zeros(3, num_angles);
             for i = 1:num_angles
-                rotatedVectors(:, i) = rotateUnitVectorZ(angles(:, i));
+                rotatedVectors(:, i) = Transformation.rotateUnitVectorZ(angles(:, i));
             end
         end
 
         function [X, Y, Z, U, V, W] = getVectors(positions, rotations)
-            rotatedVectors = rotateVectors(rotations);
-            uvw = positions + rotatedVectors;
-            [X, Y, Z] = num2cell(positions, 2);
-            [U, V, W] = num2cell(uvw, 2);
+            rotatedVectors = Transformation.rotateVectors(rotations);
+            xyz = num2cell(positions, 2);
+            uvw = num2cell(positions + rotatedVectors, 2);
+            [X, Y, Z] = xyz{:};
+            [U, V, W] = uvw{:};
         end
     end
 end
-
