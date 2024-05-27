@@ -5,27 +5,31 @@ classdef Trajectory
     properties
         positions
         rotations
-        axesLengths
+        unrotatedVector
     end
     
     methods
-        function obj = Trajectory(axesLengths)
+        function obj = Trajectory(unrotatedVector)
             %TRAJECTORY Construct a new class for saving the trajectory of
             %   a particle
-            %   AxesLengths is the lengths of the in the plot
-            obj.axesLengths = axesLengths;
+            %   unrotatedVector is the vector without rotation
+            obj.unrotatedVector = unrotatedVector;
         end
         
         function obj = appendStep(obj, particle)
             %APPEND_STEP Apppend the position and rotation into the class
-            obj.positions.append(particle.position);
-            obj.rotations.append(particle.rotation);
+            obj.positions = [obj.positions, particle.position];
+            obj.rotations = [obj.rotations, particle.rotation];
         end
 
         function visualize(obj)
-            %Visulaizes the trajectory in a quiver3 chart
-            [X, Y, Z] = obj.positions;
-            
+            %VISUALIZE Trajectory in a quiver3 chart
+            vecs = Transformation.getVectors(obj.positions, obj.rotations);
+            quiver3(vecs);
+            xlabel('X');
+            ylabel('Y');
+            zlabel('Z');
+            grid on;
         end
     end
 end
