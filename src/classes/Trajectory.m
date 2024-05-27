@@ -18,6 +18,8 @@ classdef Trajectory
         function visualize(obj)
             %VISUALIZE Trajectory in a quiver3 chart
             [X, Y, Z, U, V, W] = Transformation.getVectors(obj.positions, obj.rotations);
+
+            figure
             quiver3(X, Y, Z, U, V, W);
 
             % Change optics
@@ -28,12 +30,12 @@ classdef Trajectory
             grid on;
             axis equal;
 
-            minLimit = min([X(:); Y(:); Z(:)]);
-            maxLimit = max([X(:); Y(:); Z(:)]);
-
-            xlim([minLimit maxLimit]);
-            ylim([minLimit maxLimit]);
-            zlim([minLimit maxLimit]);
+            % minLimit = min([X(:); Y(:); Z(:)]);
+            % maxLimit = max([X(:); Y(:); Z(:)]);
+            % 
+            % xlim([minLimit maxLimit]);
+            % ylim([minLimit maxLimit]);
+            % zlim([minLimit maxLimit]);
         end
     end
 end
