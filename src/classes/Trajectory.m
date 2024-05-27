@@ -15,27 +15,37 @@ classdef Trajectory
             obj.rotations = [obj.rotations, particle.rotation];
         end
 
-        function visualize(obj)
-            %VISUALIZE Trajectory in a quiver3 chart
+        function visualizeQuiver3(obj)
+            %VISUALIZEQUIVER3 Trajectory in a quiver3 chart
             [X, Y, Z, U, V, W] = Transformation.getVectors(obj.positions, obj.rotations);
 
-            figure
+            figure;
             quiver3(X, Y, Z, U, V, W);
 
-            % Change optics
+            title('Quiver3 of Trajectory')
             xlabel('X');
             ylabel('Y');
             zlabel('Z');
 
             grid on;
             axis equal;
+        end
 
-            % minLimit = min([X(:); Y(:); Z(:)]);
-            % maxLimit = max([X(:); Y(:); Z(:)]);
-            % 
-            % xlim([minLimit maxLimit]);
-            % ylim([minLimit maxLimit]);
-            % zlim([minLimit maxLimit]);
+        function visualizePlot3(obj)
+            %VISUALIZEPLOT3 Trajectory in a quiver3 chart
+            xyz = num2cell(obj.positions, 2);
+            [X, Y, Z] = xyz{:};
+
+            figure;
+            plot3(X, Y, Z);
+
+            title('Plot3 of Trajectory')
+            xlabel('X');
+            ylabel('Y');
+            zlabel('Z');
+
+            grid on;
+            axis equal;
         end
     end
 end

@@ -21,4 +21,4 @@ for i = 1:numel(t)
     trajectory = trajectory.appendStep(particle);
 end
 
-trajectory.visualize();
+trajectory.visualizePlot3();
