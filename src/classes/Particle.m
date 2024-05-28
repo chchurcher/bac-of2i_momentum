@@ -44,7 +44,7 @@ classdef Particle
 
             obj.position = obj.position + obj.unitVecMat * deltaPosRot(1:3);
             obj.rotation = obj.rotation + deltaPosRot(4:6);
-            rotMat = Transformation.getRotationMatrix(deltaPosRot(4:6));
+            rotMat = Transformation.rotMatToLab(deltaPosRot(4:6));
             obj.unitVecMat = obj.unitVecMat * rotMat;
         end
     end
