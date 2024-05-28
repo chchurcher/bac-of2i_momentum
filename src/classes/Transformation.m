@@ -3,7 +3,9 @@ classdef Transformation
     %   position and angular vectors into different coordinate systems
     
     methods (Static)
-        function rotationMatrix = getRotationMatrix(angles)
+        function rotMat = rotMatToLab(angles)
+            %ROTAIONMATRIX From particle into lab coordinate system
+            % The Roll-, Nick-, Gierangles are used (z-y'-x'')
             c = cos(angles);
             s = sin(angles);
             
@@ -19,7 +21,11 @@ classdef Transformation
                         s(3),  c(3),    0 ;
                           0 ,    0 ,    1 ];
 
-            rotationMatrix = rotMatX * rotMatY * rotMatZ;
+            rotMat = rotMatZ * rotMatY * rotMatX;
+        end
+
+        function rotMat = rotMatToParticle(angles)
+            rotMat = Transformation.rotMatToLab(angles).';
         end
 
         function rotatedVector = rotateUnitVectorZ(angle)
