@@ -3,14 +3,18 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
     properties
         numRuns;
         showCharts;
+        alpha;
+        startPosition;
     end
 
     methods(TestMethodSetup)
         function setup(testCase)
             % Set seed of the random generator for reproducity
-            rng(37);
+            rng(73);
             testCase.numRuns = 200;
             testCase.showCharts = true;
+            testCase.alpha = 0.05;
+            testCase.startPosition = [0.05; 0.1; -0.05];
         end
     end
 
@@ -18,17 +22,19 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
         % Test methods
         
         function gaussianDistributionTest(testCase)
+            n = testCase.numRuns;
+            D = DiffusionTensor.ellipsoid(1e-5 * [10, 5, 1]);
+            finalPositions = zeros(n, 3);
 
-            D = DiffusionTensor.ellipsoid(1e-12 * [3, 1, 1]);
-            finalPositions = zeros(testCase.numRuns, 3);
-
-            delta_t = 1;
-            end_t = 50;
+            delta_t = 1e9;
+            end_t = 50e9;
             t = 0:delta_t:end_t;
 
-            for i = 1:testCase.numRuns
+            for i = 1:n
                 particle = Particle(D);
+                particle.position = testCase.startPosition;
                 particle = particle.setBrownianMotion(true);
+                particle = particle.setPreventRotation(true);
                 
                 for j = 1:numel(t)
                     particle = particle.step(zeros(6, 1), delta_t);
@@ -37,7 +43,7 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
                 finalPositions(i, :) = particle.position;
             end
 
-            expectedMu = zeros(3, 1);
+            expectedMu = testCase.startPosition;
             expectedSigma = sqrt(2*diag(D)*end_t);
             for d = 1:3
                 %Test for being a normal distribution
@@ -46,22 +52,40 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
                 fprintf('Dimen=%d: pValue=%.2f, W=%.6f\n', ...
                     d, pValue, W);
 
-                %Test the params
                 pd = fitdist(finalPositions(:,d), 'Normal');
-                testCase.verifyEqual(pd.mu, expectedMu(d), 'AbsTol', 1e-2);
-                testCase.verifyEqual(pd.sigma, expectedSigma(d), 'RelTol', 0.1);
+
+                %Test the variance
+                chi2Lower = chi2inv(testCase.alpha/2, n-1);
+                chi2Upper = chi2inv(1 - testCase.alpha/2, n-1);
+                sigmaCiLower = (n-1) * pd.sigma / chi2Upper;
+                sigmaCiUpper = (n-1) * pd.sigma / chi2Lower;
+                fprintf('Dimen=%d: sigma=%.4s [%.4s,%.4s]\n', ...
+                    d, expectedSigma(d), sigmaCiLower, sigmaCiUpper);
+                testCase.verifyGreaterThan(expectedSigma(d), sigmaCiLower);
+                testCase.verifyLessThan(expectedSigma(d), sigmaCiUpper);
+
+                %Test the mean
+                tCritical = tinv(1 - testCase.alpha/2, n-1);
+                marginOfError = tCritical * (pd.sigma / sqrt(n));
+                muCiLower = pd.mu - marginOfError;
+                muCiUpper = pd.mu + marginOfError;
+                fprintf('Dimen=%d: mu=%.4f [%.4s,%.4s]\n', ...
+                    d, expectedMu(d), muCiLower, muCiUpper);
+                testCase.verifyGreaterThan(expectedMu(d), muCiLower);
+                testCase.verifyLessThan(expectedMu(d), muCiUpper);
             end
 
             if testCase.showCharts
-                BrownianMotionTest.plotHistogram(finalPositions, expectedSigma);               
+                BrownianMotionTest.plotHistogram(finalPositions, ...
+                    expectedMu, expectedSigma);               
             end
         end
     end
 
     methods(Static)
-        function plotHistogram(finalPositions, sigma)
+        function plotHistogram(finalPositions, mu, sigma)
             figure;
-            title('Gaussian distribution test')
+            sgtitle('Gaussian distribution test');
             dimension = ['x', 'y', 'z'];
             for d = 1:3
                 subplot(1, 3, d);
@@ -70,7 +94,7 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
                 counts = counts / sum(counts);
                 counts = counts / edgeDiff;
                 values = linspace(edges(1), edges(end), 100);
-                pdf = normpdf(values, 0, sigma);
+                pdf = normpdf(values, mu(d), sigma(d));
                 
                 bar(edges(1:end-1) + edgeDiff / 2, counts, 'histc');
                 hold on;

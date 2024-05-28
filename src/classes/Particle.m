@@ -7,6 +7,7 @@ classdef Particle
         unitVecMat;
         diffusionTensor;
         isBrownianMotion;
+        isPreventRotation;
     end
     
     methods
@@ -17,10 +18,15 @@ classdef Particle
             obj.rotation = zeros(3, 1);
             obj.unitVecMat = eye(3);
             obj.isBrownianMotion = true;
+            obj.isPreventRotation = false;
         end
 
         function obj = setBrownianMotion(obj, isBrownianMotion)
             obj.isBrownianMotion = isBrownianMotion;
+        end
+
+        function obj = setPreventRotation(obj, isPreventRotation)
+            obj.isPreventRotation = isPreventRotation;
         end
 
         function posRot = getPosRot(obj)
@@ -39,6 +45,7 @@ classdef Particle
             if obj.isBrownianMotion
                 mu = zeros(6, 1);
                 w = mvnrnd(mu, obj.diffusionTensor);
+                if obj.isPreventRotation, w(4:6) = 0; end
                 deltaPosRot = deltaPosRot + sqrt(2 * delta_t) * w.';
             end
 
