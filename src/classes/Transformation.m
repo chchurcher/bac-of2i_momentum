@@ -139,7 +139,7 @@ classdef Transformation
             unitZ = repmat([0; 0; 1], 1, size(posRots, 2));
             labZ = Transformation.toLab(posRots, unitZ);
             xyz = num2cell(posRots(1:3, :), 2);
-            uvw = num2cell(posRots(1:3, :) + labZ, 2);
+            uvw = num2cell(labZ - posRots(1:3, :), 2);
             [X, Y, Z] = xyz{:};
             [U, V, W] = uvw{:};
         end
@@ -152,9 +152,9 @@ classdef Transformation
             particleVec(:,2*n+1:3*n) = repmat([0; 0; halfAxes(3)], 1, n);
 
             posRots = repmat(posRots, 1, 3);
-            labZ = Transformation.toLab(posRots, particleVec);
+            posLab = Transformation.toLab(posRots, particleVec);
             xyz = num2cell(posRots(1:3, :), 2);
-            uvw = num2cell(posRots(1:3, :) + labZ, 2);
+            uvw = num2cell(posLab - posRots(1:3,:), 2);
             [X, Y, Z] = xyz{:};
             [U, V, W] = uvw{:};
         end
