@@ -128,7 +128,7 @@ classdef Transformation
             if n == 1, vector_m = vector_m(:, 1); end
         end
 
-        function [X, Y, Z, U, V, W] = getQuiversZaxis(posRots)
+        function [X, Y, Z, U, V, W] = getQuiverZaxis(posRots)
         %GETQUIVERSZAXIS Used for ploting a trajectory in the quiver3 plot
         %   The unit vector in z direction in the particle system is
         %   plotted

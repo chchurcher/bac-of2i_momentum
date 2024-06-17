@@ -56,22 +56,30 @@ classdef TrajectoryForceTest < matlab.unittest.TestCase
 
         function lateralDriftDirectionTest(testCase)
             gravity = repmat([0; 0; -9.81; 0; 0; 0], 1, 10);
+            halfAxes = [5, 1, 1];
             
-            D = DiffusionTensor.ellipsoid([10, 1, 1]);
+            D = DiffusionTensor.ellipsoid(halfAxes);
             particle = Particle(D);
             particle = particle.setBrownianMotion(false);
 
-            particle.posRot(4:6) = [0, pi/4, pi/2];
+            particle.posRot(4:6) = [0, pi/4, pi/4];
             particle.unitVecMat = Transformation ...
                 .rotMatToLab(particle.posRot(4:6));
+
+            trajectory = Trajectory();
+            trajectory = trajectory.appendStep(particle);
             
             for i = 1:10
                 particle = particle.step(gravity(:, i), testCase.delta_t);
             end
 
+            % Test for drift into positive x and y direction
             pos = particle.posRot(1:3);
+            testCase.verifyGreaterThan(pos(1), 0);
             testCase.verifyGreaterThan(pos(2), 0);
-            testCase.verifyEqual(pos(1), 0, 'AbsTol', 1e-8);
+
+            trajectory = trajectory.appendStep(particle);
+            trajectory.visualizeQuiverAxes(halfAxes);
         end
     end
     

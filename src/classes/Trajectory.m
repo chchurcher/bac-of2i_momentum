@@ -13,14 +13,30 @@ classdef Trajectory
             obj.posRots = [obj.posRots, particle.posRot];
         end
 
-        function visualizeQuiver3(obj)
+        function visualizeQuiverZaxis(obj)
             %VISUALIZEQUIVER3 Trajectory in a quiver3 chart
             [X, Y, Z, U, V, W] = Transformation.getQuiversZaxis(obj.posRots);
 
             figure;
             quiver3(X, Y, Z, U, V, W);
 
-            title('Quiver3 of Trajectory')
+            title('Quiver z-Axis of Trajectory')
+            xlabel('X');
+            ylabel('Y');
+            zlabel('Z');
+
+            grid on;
+            axis equal;
+        end
+
+        function visualizeQuiverAxes(obj, halfAxes)
+            %VISUALIZEQUIVER3 Trajectory in a quiver3 chart
+            [X, Y, Z, U, V, W] = Transformation.getQuiverAxes(obj.posRots, halfAxes);
+
+            figure;
+            quiver3(X, Y, Z, U, V, W);
+
+            title('Quiver Halfaxes of Trajectory')
             xlabel('X');
             ylabel('Y');
             zlabel('Z');
