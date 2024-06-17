@@ -24,7 +24,7 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
         function gaussianDistributionTest(testCase)
             n = testCase.numRuns;
             D = DiffusionTensor.ellipsoid(1e-5 * [10, 5, 1]);
-            finalPositions = zeros(n, 3);
+            finalPositions = zeros(3, n);
 
             delta_t = 1e9;
             end_t = 50e9;
@@ -32,7 +32,7 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
 
             for i = 1:n
                 particle = Particle(D);
-                particle.position = testCase.startPosition;
+                particle.posRot(1:3) = testCase.startPosition;
                 particle = particle.setBrownianMotion(true);
                 particle = particle.setPreventRotation(true);
                 
@@ -40,19 +40,19 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
                     particle = particle.step(zeros(6, 1), delta_t);
                 end
 
-                finalPositions(i, :) = particle.position;
+                finalPositions(:, i) = particle.posRot(1:3);
             end
 
             expectedMu = testCase.startPosition;
             expectedSigma = sqrt(2*diag(D)*end_t);
             for d = 1:3
                 %Test for being a normal distribution
-                [h, pValue, W] = swtest(finalPositions(:,d));
+                [h, pValue, W] = swtest(finalPositions(d,:));
                 testCase.verifyEqual(h, false);
                 fprintf('Dimen=%d: pValue=%.2f, W=%.6f\n', ...
                     d, pValue, W);
 
-                pd = fitdist(finalPositions(:,d), 'Normal');
+                pd = fitdist(finalPositions(d,:)', 'Normal');
 
                 %Test the variance
                 chi2Lower = chi2inv(testCase.alpha/2, n-1);
@@ -89,7 +89,7 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
             dimension = ['x', 'y', 'z'];
             for d = 1:3
                 subplot(1, 3, d);
-                [counts, edges] = histcounts(finalPositions(:, d), 20);
+                [counts, edges] = histcounts(finalPositions(d, :), 20);
                 edgeDiff = edges(2) - edges(1);
                 counts = counts / sum(counts);
                 counts = counts / edgeDiff;

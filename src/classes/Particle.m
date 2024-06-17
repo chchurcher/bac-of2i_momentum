@@ -2,8 +2,7 @@ classdef Particle
     %PARTICLE Class of the properties of one distinct particle
     
     properties
-        position;
-        rotation;
+        posRot;
         unitVecMat;
         diffusionTensor;
         isBrownianMotion;
@@ -14,8 +13,7 @@ classdef Particle
         function obj = Particle(diffusionTensor)
             %Construct an instance of a particle
             obj.diffusionTensor = diffusionTensor;
-            obj.position = zeros(3, 1);
-            obj.rotation = zeros(3, 1);
+            obj.posRot = zeros(6, 1);
             obj.unitVecMat = eye(3);
             obj.isBrownianMotion = true;
             obj.isPreventRotation = false;
@@ -27,10 +25,6 @@ classdef Particle
 
         function obj = setPreventRotation(obj, isPreventRotation)
             obj.isPreventRotation = isPreventRotation;
-        end
-
-        function posRot = getPosRot(obj)
-            posRot = [obj.position; obj.rotation];
         end
 
         function obj = step(obj, forcTorqLab, delta_t)
@@ -49,8 +43,8 @@ classdef Particle
                 deltaPosRot = deltaPosRot + sqrt(2 * delta_t) * w.';
             end
 
-            obj.position = obj.position + obj.unitVecMat * deltaPosRot(1:3);
-            obj.rotation = obj.rotation + deltaPosRot(4:6);
+            obj.posRot(1:3) = obj.posRot(1:3) + obj.unitVecMat * deltaPosRot(1:3);
+            obj.posRot(4:6) = obj.posRot(4:6) + deltaPosRot(4:6);
             rotMat = Transformation.rotMatToLab(deltaPosRot(4:6));
             obj.unitVecMat = obj.unitVecMat * rotMat;
         end

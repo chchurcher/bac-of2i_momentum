@@ -4,7 +4,6 @@ classdef TrajectoryForceTest < matlab.unittest.TestCase
         delta_t;
         t;
         forcTorq;
-        spheroidSettlingData;
     end
     
     methods(TestMethodSetup)
@@ -32,9 +31,10 @@ classdef TrajectoryForceTest < matlab.unittest.TestCase
                 particle = Particle(D);
                 particle = particle.setBrownianMotion(false);
     
-                particle.rotation = [0, alpha, 0];
+                % Set initial start rotation
+                particle.posRot(4:6) = [0, alpha, 0];
                 particle.unitVecMat = Transformation ...
-                    .rotMatToLab(particle.rotation);
+                    .rotMatToLab(particle.posRot(4:6));
                 
                 for i = 1:numel(testCase.t)
                     particle = particle.step(gravity(:, i), testCase.delta_t);
@@ -43,7 +43,7 @@ classdef TrajectoryForceTest < matlab.unittest.TestCase
                 beta = pi/2 - alpha;
                 fun = @(delta) C_para / C_perp * tan(beta) ...
                 - tan(beta - delta);
-                pos = particle.position;
+                pos = particle.posRot(1:3);
                 %fprintf('Alpha=%.2f: X=%.6f, Z=%.6f\n', ...
                 %    alpha, pos(1), pos(3));
 
@@ -61,15 +61,15 @@ classdef TrajectoryForceTest < matlab.unittest.TestCase
             particle = Particle(D);
             particle = particle.setBrownianMotion(false);
 
-            particle.rotation = [0, pi/4, pi/2];
+            particle.posRot(4:6) = [0, pi/4, pi/2];
             particle.unitVecMat = Transformation ...
-                .rotMatToLab(particle.rotation);
+                .rotMatToLab(particle.posRot(4:6));
             
             for i = 1:10
                 particle = particle.step(gravity(:, i), testCase.delta_t);
             end
 
-            pos = particle.position;
+            pos = particle.posRot(1:3);
             testCase.verifyGreaterThan(pos(2), 0);
             testCase.verifyEqual(pos(1), 0, 'AbsTol', 1e-8);
         end

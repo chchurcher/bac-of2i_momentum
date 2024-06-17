@@ -3,21 +3,19 @@ classdef Trajectory
     %   on the timesteps
     
     properties
-        positions
-        rotations
+        posRots
         unrotatedVector
     end
     
     methods
         function obj = appendStep(obj, particle)
-            %APPEND_STEP Apppend the position and rotation into the class
-            obj.positions = [obj.positions, particle.position];
-            obj.rotations = [obj.rotations, particle.rotation];
+            %APPENDSTEP Apppend the position and rotation into the class
+            obj.posRots = [obj.posRots, particle.posRot];
         end
 
         function visualizeQuiver3(obj)
             %VISUALIZEQUIVER3 Trajectory in a quiver3 chart
-            [X, Y, Z, U, V, W] = Transformation.getVectors(obj.positions, obj.rotations);
+            [X, Y, Z, U, V, W] = Transformation.getQuiversZaxis(obj.posRots);
 
             figure;
             quiver3(X, Y, Z, U, V, W);
@@ -32,8 +30,8 @@ classdef Trajectory
         end
 
         function visualizePlot3(obj)
-            %VISUALIZEPLOT3 Trajectory in a quiver3 chart
-            xyz = num2cell(obj.positions, 2);
+            %VISUALIZEPLOT3 Trajectory in a plot3 chart
+            xyz = num2cell(obj.posRots(1:3,:), 2);
             [X, Y, Z] = xyz{:};
 
             figure;
@@ -45,7 +43,6 @@ classdef Trajectory
             zlabel('Z');
 
             grid on;
-            axis equal;
         end
     end
 end
