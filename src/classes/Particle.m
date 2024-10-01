@@ -1,52 +1,73 @@
 classdef Particle
-    %PARTICLE Class of the properties of one distinct particle
-    
-    properties
-        posRot;
-        unitVecMat;
-        diffusionTensor;
-        isBrownianMotion;
-        isPreventRotation;
+  %PARTICLE Class of the properties of one distinct particle
+
+  properties
+    pos;
+    rotMat_m;  % rotational matrix to rotate particles vectors to lab
+    diffusionTensor;
+    isBrownianMotion;
+    isPreventRotation;
+    triLab;  % particle in bem toolbox in the lab system
+    halfAxes;
+  end
+
+  methods
+    function obj = Particle( varargin )
+    %PARTICLE Constructor for a ellipsoidal particle
+      obj.pos = zeros( 3, 1 );
+      obj.rotMat_m = eye( 3 );
+      obj.diffusionTensor = zeros( 6 );
+
+      for i = 1 : 2 : numel( varargin )
+        val = varargin{ i + 1 };
+        switch varargin{ i }
+          case 'brownian'
+            obj.isBrownianMotion = val;
+          case 'prevent_rotation'
+            obj.isPreventRotation = val;
+          case 'pos'
+            obj.pos = val;
+          case 'rot'
+            obj.rotMat_m = Transformation.rotMatToLab( val );
+          case 'halfAxes'
+            obj.halfAxes = val;
+        end
+      end
+
+      %Construct an instance of a particle
+      obj.diffusionTensor = DiffusionTensor.ellipsoid( obj.halfAxes );
+      obj.triLab = trisphere( 144, 1 );
+      obj.triLab = transform( obj.triLab, 'scale', obj.halfAxes );
+      obj.triLab = transform( obj.triLab, 'rot', obj.rotMat_m );
+      obj.triLab = transform( obj.triLab, 'shift', obj.pos );
     end
-    
-    methods
-        function obj = Particle(diffusionTensor)
-            %Construct an instance of a particle
-            obj.diffusionTensor = diffusionTensor;
-            obj.posRot = zeros(6, 1);
-            obj.unitVecMat = eye(3);
-            obj.isBrownianMotion = true;
-            obj.isPreventRotation = false;
-        end
 
-        function obj = setBrownianMotion(obj, isBrownianMotion)
-            obj.isBrownianMotion = isBrownianMotion;
-        end
+    function obj = step( obj, fopt, nopt, dt )
 
-        function obj = setPreventRotation(obj, isPreventRotation)
-            obj.isPreventRotation = isPreventRotation;
-        end
+      % Calculate force and torque in particles system (marked)
+      fnopt_m = zeros( 6, 1 );
+      fnopt_m(1:3) = obj.rotMat_m \ fopt.';
+      fnopt_m(4:6) = obj.rotMat_m \ nopt.';
 
-        function obj = step(obj, forcTorqLab, delta_t)
+      dPosRot_m = 1 / (Constants.k_B * Constants.T) ...
+        * dt * obj.diffusionTensor * fnopt_m;
 
-            forcTorqPart = zeros(6, 1);
-            forcTorqPart(1:3) = obj.unitVecMat \ forcTorqLab(1:3);
-            forcTorqPart(4:6) = obj.unitVecMat \ forcTorqLab(4:6);
+      if obj.isBrownianMotion
+        mu = zeros(6, 1);
+        w = mvnrnd(mu, obj.diffusionTensor);
+        if obj.isPreventRotation, w(4:6) = 0; end
+        dPosRot_m = dPosRot_m + sqrt(2 * dt) * w.';
+      end
 
-            deltaPosRot = 1 / (Constants.k_B * Constants.T) ...
-                * delta_t * obj.diffusionTensor * forcTorqPart;
-            
-            if obj.isBrownianMotion
-                mu = zeros(6, 1);
-                w = mvnrnd(mu, obj.diffusionTensor);
-                if obj.isPreventRotation, w(4:6) = 0; end
-                deltaPosRot = deltaPosRot + sqrt(2 * delta_t) * w.';
-            end
+      dRotMat_m = Transformation.rotMatToLab(dPosRot_m(4:6));
 
-            obj.posRot(1:3) = obj.posRot(1:3) + obj.unitVecMat * deltaPosRot(1:3);
-            obj.posRot(4:6) = obj.posRot(4:6) + deltaPosRot(4:6);
-            rotMat = Transformation.rotMatToLab(deltaPosRot(4:6));
-            obj.unitVecMat = obj.unitVecMat * rotMat;
-        end
+      verts_m = obj.triLab.verts - obj.pos;
+      verts_m = dRotMat_m * verts_m.';
+
+      obj.pos = obj.pos + (obj.rotMat_m * dPosRot_m(1:3)).';
+      obj.triLab.verts = verts_m.' + obj.pos;
+
+      obj.rotMat_m = obj.rotMat_m * dRotMat_m;
     end
+  end
 end
