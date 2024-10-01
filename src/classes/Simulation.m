@@ -1,9 +1,8 @@
-classdef Trajectory
-  %TRAJECTORY Saves the positions and rotations of a particle depending
-  %   on the timesteps
+classdef Simulation
+  %SIMULATION Performs a simulations of different particles in a plane wave
 
   properties
-    particle
+    particles
     positions
     lambda
     dt
@@ -14,9 +13,9 @@ classdef Trajectory
 
   methods
 
-    function obj = Trajectory( particle )
+    function obj = Simulation( particles )
       %TRAJECTORY Constructor method
-      obj.particle = particle;
+      obj.particles = particles;
     end
 
     function obj = options( obj, varargin )
@@ -37,13 +36,10 @@ classdef Trajectory
       end
     end
 
-    function obj = simulate( obj )
+    function obj = start( obj )
 
-      p = obj.particle;
       t = 0:obj.dt:obj.end_t;
-
-      obj.positions = zeros( 3, numel( t ) );
-      obj.positions(:, 1) = p.pos;
+      obj.positions = zeros( 3, numel( t ), numel( obj.particles ) );
 
       k0 = 2 * pi / obj.lambda;
       
@@ -52,72 +48,50 @@ classdef Trajectory
       
       %  boundary elements with linear shape functions
       tau = BoundaryEdge( Constants.material(), ...
-        obj.particle.triLab, [ 2, 1 ] );
+        obj.particles(1).triLab, [ 2, 1 ] );
       
       %  initialize BEM solver
       rules = quadboundary.rules( 'quad3', triquad( 3 ) );
       bem = galerkin.bemsolver( tau, 'rules', rules, 'waitbar', 1 );
       
       multiWaitbar( 'BEM solver', 0, 'Color', 'g', 'CanCancel', 'on' );
-      %  loop over timesteps
-      for i = 2 : numel( t )
+      multiWaitbar( 'Particles', 0, 'Color', 'g', 'CanCancel', 'on' );
+
+      for i = 1 : numel( obj.particles )
+        p = obj.particles(i);
+        obj.positions(:, 1, i) = p.pos;
+        %  loop over timesteps
+        for j = 2 : numel( t )
           %  solution of BEM equations
           [ sol1, bem ] = solve( bem, exc( tau, k0 ) );
           
           %  optical force and torque
           [ fopt, nopt, ~ ] = optforce( sol1 );
           
+          % Converstion pico into nano
           fopt = fopt.*1e-3;
           nopt = nopt.*1e-3;
 
           p = p.step( fopt, nopt, obj.dt );
-          obj.positions(:, i) = p.pos;
+          obj.positions(:, j, i) = p.pos;
       
-          multiWaitbar( 'BEM solver', i / numel( t ) );
+          multiWaitbar( 'BEM solver', j / numel( t ) );
+        end
+        multiWaitbar( 'Particles', i / numel( obj.particles ) );
       end
       multiWaitbar( 'CloseAll' );
 
     end
 
-    function visualizeQuiverZaxis(obj)
-      %VISUALIZEQUIVER3 Trajectory in a quiver3 chart
-      [X, Y, Z, U, V, W] = Transformation.getQuiversZaxis(obj.positions);
-
-      figure;
-      quiver3(X, Y, Z, U, V, W);
-
-      title('Quiver z-Axis of Trajectory')
-      xlabel('X');
-      ylabel('Y');
-      zlabel('Z');
-
-      grid on;
-      axis equal;
-    end
-
-    function visualizeQuiverAxes(obj, halfAxes)
-      %VISUALIZEQUIVER3 Trajectory in a quiver3 chart
-      [X, Y, Z, U, V, W] = Transformation.getQuiverAxes(obj.positions, halfAxes);
-
-      figure;
-      quiver3(X, Y, Z, U, V, W);
-
-      title('Quiver Halfaxes of Trajectory')
-      xlabel('X');
-      ylabel('Y');
-      zlabel('Z');
-
-      grid on;
-      axis equal;
-    end
-
     function visualizePlot3(obj)
       %VISUALIZEPLOT3 Trajectory in a plot3 chart
-      xyz = num2cell(obj.positions, 2);
-      [X, Y, Z] = xyz{:};
 
       figure;
-      plot3(X, Y, Z);
+      for i = 1:numel( obj.particles )
+        xyz = num2cell(obj.positions(:,:,i), 2);
+        [X, Y, Z] = xyz{:};
+        plot3(X, Y, Z); hold on
+      end
 
       title('Plot3 of Trajectory')
       xlabel('X');
