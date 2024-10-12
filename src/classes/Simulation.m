@@ -4,6 +4,7 @@ classdef Simulation
   properties
     particles
     positions
+    rotMats
     lambda
     dt
     end_t
@@ -40,6 +41,7 @@ classdef Simulation
 
       t = 0:obj.dt:obj.end_t;
       obj.positions = zeros( 3, numel( t ), numel( obj.particles ) );
+      obj.rotMats = zeros( 3, 3, numel( t ), numel( obj.particles ) );
 
       k0 = 2 * pi / obj.lambda;
       
@@ -60,6 +62,7 @@ classdef Simulation
       for i = 1 : numel( obj.particles )
         p = obj.particles(i);
         obj.positions(:, 1, i) = p.pos;
+        obj.rotMats(:, :, 1, i) = p.rotMat_m;
         %  loop over timesteps
         for j = 2 : numel( t )
           %  solution of BEM equations
@@ -74,9 +77,11 @@ classdef Simulation
 
           p = p.step( fopt, nopt, obj.dt );
           obj.positions(:, j, i) = p.pos;
+          obj.rotMats(:, :, j, i) = p.rotMat_m;
       
           multiWaitbar( 'BEM solver', j / numel( t ) );
         end
+        
         multiWaitbar( 'Particles', i / numel( obj.particles ) );
       end
       multiWaitbar( 'CloseAll' );

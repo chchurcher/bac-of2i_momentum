@@ -1,6 +1,6 @@
 %  OBLATESPHEROID - Simulations of oblated spheroids in a plane wave
 
-n = 10;
+n = 1;
 
 particles = Particle.empty(n, 0);
 angles = linspace(0, pi/2, n);
@@ -22,4 +22,6 @@ sim = sim.options( ...
   'dir', [ 0, 0, 1 ]);
 
 sim = sim.start();
+disp( 'Simulation' )
+disp( sim.particles.rotMat_m )
 sim.visualizePlot3();

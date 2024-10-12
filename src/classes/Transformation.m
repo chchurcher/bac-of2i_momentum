@@ -31,16 +31,16 @@ classdef Transformation
         s = sin(angles(:, i));
 
         rotMatX = [   1 ,    0 ,    0 ;
-                      0 ,  c(1), -s(1);
-                      0 ,  s(1),  c(1)];
+          0 ,  c(1), -s(1);
+          0 ,  s(1),  c(1)];
 
         rotMatY = [ c(2),    0 ,  s(2);
-                      0 ,    1 ,    0 ;
-                   -s(2),    0 ,  c(2)];
+          0 ,    1 ,    0 ;
+          -s(2),    0 ,  c(2)];
 
         rotMatZ = [ c(3), -s(3),    0 ;
-                    s(3),  c(3),    0 ;
-                      0 ,    0 ,    1 ];
+          s(3),  c(3),    0 ;
+          0 ,    0 ,    1 ];
 
         rotMat(:, :, i) = rotMatZ * rotMatY * rotMatX;
       end
@@ -106,14 +106,14 @@ classdef Transformation
     function vector_m = toParticle(posRot, vector)
       %TOPARTICLE Converts a vector in lab to the particle system
       %
-      %   Inputs:
-      %       posRot - position (1:3,n) and rotation (4:6,n) of the
-      %       particle, array-shaped (6,n) or (6)
-      %       vector - vector in lab system that should be rotated into
-      %       particle system
+      % Inputs:
+      %   posRot - position (1:3,n) and rotation (4:6,n) of the
+      %   particle, array-shaped (6,n) or (6)
+      %   vector - vector in lab system that should be rotated into
+      %   particle system
       %
-      %   Outputs:
-      %       vector_m - vector in particle system, array-shaped (3,n) or (3)
+      % Outputs:
+      %   vector_m - vector in particle system, array-shaped (3,n) or (3)
 
       [posRotRows, n] = size(posRot);
       [vecRows, vecCols] = size(vector);
@@ -131,9 +131,27 @@ classdef Transformation
       if n == 1, vector_m = vector_m(:, 1); end
     end
 
-    function triParticle = triangulated(triParticle, posRot, deltaPosRot)
-      verts_m = toParticle(posRot, triParticle.verts);
-      verts = toL
+    function angles = toAngles(rotMats)
+      %TOANGELS Used to calculate a possible angle to acive the rotMat
+      %
+      % Inputs:
+      %   rotMats - rotation matrices shaped (3,3,n) or (3,3)
+      %
+      % Outputs:
+      %   angles - euler angles of the rotation matrices (3,n) or (3,1)
+
+      [x, y, n] = size(rotMats);
+      if x ~= 3 || y ~= 3
+        error('Incompatible dimensions: rotMats must be (3,3,n)');
+      end
+
+      angles = zeros( 3, n );
+
+      for i = 1:n
+        angles(1, i) = atan2( rotMats(3, 2 ,i), rotMats(3, 3, i) );
+        angles(2, i) = asin( -rotMats(3, 1, i) );
+        angles(3, i) = atan2( rotMats(2, 1, i), rotMats(1, 1, i) );
+      end
     end
 
     function [X, Y, Z, U, V, W] = getQuiverZaxis(posRots)
