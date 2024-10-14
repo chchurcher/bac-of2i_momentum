@@ -5,6 +5,7 @@ classdef Constants
         k_B = 1.380649e-23
         T = 300
         eta_water = 1e-3
+        lgWaist = 1.0;
     end
 
     methods (Static)
