@@ -1,8 +1,9 @@
-%  Simulation of oblated spheroids in a plane wave
+%  Simulation of oblated spheroids in a plane wave with different starting
+%  rotations
 
 %% Calculation of a spheroid in a plane wave
 n = 20;
-angles = linspace(0, pi/2, n);
+angles = linspace(0, pi, n);
 dt = 0.05;
 end_t = 2;
 t = 0:dt:end_t;
@@ -28,7 +29,8 @@ sim = sim.options( ...
 sim = sim.start();
 sim.visualizePlot3();
 
-%% Plotting the results
+
+%% Plotting the rotation process
 figure;
 sgtitle({'Unit vector z'' of particle in lab system', ...
   'z''=(0,0,1) in (x,y,z)'});
@@ -56,3 +58,29 @@ subplot(3, 1, 3);
 xlabel('time / s')
 ylabel('z * z''')
 title('z-component')
+
+
+%% Plotting the end positions
+endPos = sim.positions(:, end, :);
+endPos = reshape( endPos, [3, n] );
+
+figure;
+sgtitle(['End positions of particle depending on starting rotation ' ...
+  '\alpha(0)']);
+
+for j = 1:3
+  subplot(3, 1, j);
+  plot(angles, endPos(j, :)); hold on
+end
+
+subplot(3, 1, 1);
+xlabel('\alpha(0) / rad')
+ylabel('x / m')
+
+subplot(3, 1, 2);
+xlabel('\alpha(0) / rad')
+ylabel('y / m')
+
+subplot(3, 1, 3);
+xlabel('\alpha(0) / rad')
+ylabel('z / m')
