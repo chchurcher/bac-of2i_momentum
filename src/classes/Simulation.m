@@ -8,8 +8,7 @@ classdef Simulation
     lambda
     dt
     end_t
-    pol
-    dir
+    exc
   end
 
   methods
@@ -29,10 +28,8 @@ classdef Simulation
             obj.dt = val;
           case 'end_t'
             obj.end_t = val;
-          case 'pol'
-            obj.pol = val;
-          case 'dir'
-            obj.dir = val;
+          case 'exc'
+            obj.exc = val;
         end
       end
     end
@@ -44,9 +41,6 @@ classdef Simulation
       obj.rotMats = zeros( 3, 3, numel( t ), numel( obj.particles ) );
 
       k0 = 2 * pi / obj.lambda;
-      
-      %  planewave excitation
-      exc = galerkin.planewave( obj.pol, obj.dir );
       
       %  boundary elements with linear shape functions
       tau = BoundaryEdge( Constants.material(), ...
@@ -66,7 +60,7 @@ classdef Simulation
         %  loop over timesteps
         for j = 2 : numel( t )
           %  solution of BEM equations
-          [ sol1, bem ] = solve( bem, exc( tau, k0 ) );
+          [ sol1, bem ] = solve( bem, obj.exc( tau, k0 ) );
           
           %  optical force and torque
           [ fopt, nopt, ~ ] = optforce( sol1 );
@@ -81,7 +75,7 @@ classdef Simulation
       
           multiWaitbar( 'BEM solver', j / numel( t ) );
         end
-        
+
         multiWaitbar( 'Particles', i / numel( obj.particles ) );
       end
       multiWaitbar( 'CloseAll' );

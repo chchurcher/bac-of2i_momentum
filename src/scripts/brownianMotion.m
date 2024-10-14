@@ -1,24 +1,71 @@
-% Brownian motion of an ellipsoid without external forces or torques
+% Brownian Motion of an ellipsoid without external forces
 
-% Set seed of the random generator for reproducity
-rng(10);
+halfAxes = [6, 10, 10];
+startPosition = [0, 0, 0];
+startRotation = [pi/6, pi/4, 0];
 
-% Constants
-halfAxes = 1e-6 * [1, 10, 10];
-delta_t = 0.1;
+dt = 0.1;
 end_t = 10;
+t = 0:dt:end_t;
 
-t = 0:delta_t:end_t;
-forcTorq = zeros(6, numel(t));
+rng(17);
 
-D = DiffusionTensor.ellipsoid(halfAxes);
-particle = Particle(D);
-particle = particle.setBrownianMotion(true);
-trajectory = Trajectory();
 
+%% Simulation of the Brownian Motion (Random Walk) without external Forces
+particle = Particle( ...
+          'brownian', true, ...
+          'halfAxes', halfAxes, ...
+          'pos', startPosition, ...
+          'rot', startRotation);
+
+positions = zeros(3, numel( t ));
+rotMats = zeros(3, 3, numel( t ));
 for i = 1:numel(t)
-    particle = particle.step(forcTorq(:, i), delta_t);
-    trajectory = trajectory.appendStep(particle);
+    particle = particle.step([0, 0, 0], [0, 0, 0], dt);
+    positions(:, i) = particle.pos;
+    rotMats(:, :, i) = particle.rotMat_m;
 end
 
-trajectory.visualizePlot3();
+
+%% Plotting the results
+% Visualize Ellipsoid
+visualizeEllipsoid( halfAxes, [startPosition, startRotation].' );
+
+% Plot3
+figure;
+xyz = num2cell(positions, 2);
+[X, Y, Z] = xyz{:};
+plot3(X, Y, Z); hold on
+
+title('Brownian Motion of Ellipsoid')
+xlabel('X');
+ylabel('Y');
+zlabel('Z');
+
+grid on;
+
+% Rotation of ellipsoid
+figure;
+sgtitle('Unit vector z'' of Particle in Lab-System');
+
+z = pagemtimes( rotMats, [0; 0; 1]);
+z = reshape(z, [3, numel( t )]);
+for i = 1:3
+  subplot(3, 1, i);
+  plot(t, z(i, :)); hold on
+end
+
+subplot(3, 1, 1);
+xlabel('time / s')
+ylabel('x * z''')
+title('x-component')
+
+subplot(3, 1, 2);
+xlabel('time / s')
+ylabel('y * z''')
+title('y-component')
+subplot(3, 1, 3);
+
+xlabel('time / s')
+ylabel('z * z''')
+title('z-component')
