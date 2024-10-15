@@ -66,8 +66,8 @@ classdef Simulation
           [ fopt, nopt, ~ ] = optforce( sol1 );
           
           % Converstion pico into nano
-          fopt = fopt.*1e-3;
-          nopt = nopt.*1e-3;
+          % fopt = fopt.*1e-3;
+          % nopt = nopt.*1e-3;
 
           p = p.step( fopt, nopt, obj.dt );
           obj.positions(:, j, i) = p.pos;

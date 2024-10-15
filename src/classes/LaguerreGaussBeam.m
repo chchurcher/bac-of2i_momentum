@@ -56,5 +56,31 @@ classdef LaguerreGaussBeam
       [ e, h ] = qbasis( tau, fun, obj.rules );
       qinc = struct( 'e', e, 'h', h, 'tau', tau, 'k0', k0 );
     end
+
+    function varargout = subsref( obj, s )
+      %  Evaluate planewave object.
+
+      switch s( 1 ).type
+        case  '.'
+          % No implementation of calculation only the absorption,
+          % extinction and scattering fields
+          error( ['The absoption, extinction and scattering from a ' ...
+            'laguerre gauss beam can''t be calculated'] );
+          % switch s( 1 ).subs
+          %   case 'abs'
+          %     varargout{ 1 } = absorption( obj, s( 2 ).subs{ : } );
+          %   case 'ext'
+          %     varargout{ 1 } = extinction( obj, s( 2 ).subs{ : } );
+          %   case 'sca'
+          %     varargout{ 1 } = scattering( obj, s( 2 ).subs{ : } );
+          %   otherwise
+          %     [ varargout{ 1 : nargout } ] = builtin( 'subsref', obj, s );
+          % end
+        case '()'
+          varargout{ 1 } = obj.eval( s( 1 ).subs{ : } );
+        otherwise
+          [ varargout{ 1 : nargout } ] = builtin( 'subsref', obj, s );
+      end
+    end
   end
 end
