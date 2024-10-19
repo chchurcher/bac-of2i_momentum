@@ -49,6 +49,7 @@ classdef Particle
       fnopt_m(1:3) = obj.rotMat_m \ fopt.';
       fnopt_m(4:6) = obj.rotMat_m \ nopt.';
 
+      % Add number
       dPosRot_m = 1 / (Constants.k_B * Constants.T) ...
         * dt * obj.diffusionTensor * fnopt_m;
 

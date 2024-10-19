@@ -1,24 +1,32 @@
-n = 21;
+n = 101;
+lambda = 650;
+k = 2*pi/lambda;
 
-x = linspace(-0.1, 0.1, n);
-y = linspace(-0.1, 0.1, n);
-z = linspace(-0.1, 0.1, n);
+xyz = linspace(-5*lambda, 5*lambda, n);
 
-[XX, YY, ZZ] = meshgrid(x, y, z);
-pos = [XX(:), YY(:), ZZ(:)];
-[ e, h ] = laguerreGaussFun( pos, 2*pi/650, 0.1 );
+% [XX, YY, ZZ] = meshgrid(xyz, xyz, xyz);
+% pos = [XX(:), YY(:), ZZ(:)];
+% [ e, h ] = laguerreGaussFun( pos, k, 376.7, 1.5*lambda );
 
-t = linspace(0, pi, 1);
 
+% figure;
+% quiver3(pos(:, 1), pos(:, 2), pos(:, 3), ...
+% e(:, 1), e(:, 2), e(:, 3), 100)
+% xlabel('x')
+% ylabel('y')
+% zlabel('z')
+
+[XX, YY] = meshgrid(xyz, xyz);
+pos = [XX(:), YY(:), zeros(size(XX(:)))];
+[ e, h ] = laguerreGaussFun( pos, k, 376.7, 1.5*lambda );
+
+%%
 figure;
-for k = 1:numel( t )
-  et = e .* exp(1i * t(k));
-
-  quiver3(pos(:, 1), pos(:, 2), pos(:, 3), ...
-  et(:, 1), et(:, 2), et(:, 3), 100)
-  xlabel('x')
-  ylabel('y')
-  zlabel('z')
-
-  pause( 1 );
+for i = 1:3
+  subplot(1, 3, i);
+  cdata = e(:, i);
+  cdata = reshape(cdata, [n, n]);
+  cdata = real(cdata);
+  imagesc(cdata)
+  colorbar
 end

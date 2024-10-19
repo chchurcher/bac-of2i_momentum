@@ -9,6 +9,7 @@ classdef Simulation
     dt
     end_t
     exc
+    flow
   end
 
   methods
@@ -19,6 +20,8 @@ classdef Simulation
     end
 
     function obj = options( obj, varargin )
+      obj.flow = [0, 0, 0];
+
       for i = 1 : 2 : numel( varargin )
         val = varargin{ i + 1 };
         switch varargin{ i }
@@ -30,6 +33,8 @@ classdef Simulation
             obj.end_t = val;
           case 'exc'
             obj.exc = val;
+          case 'flow'
+            obj.flow = val;
         end
       end
     end
@@ -59,6 +64,9 @@ classdef Simulation
         obj.rotMats(:, :, 1, i) = p.rotMat_m;
         %  loop over timesteps
         for j = 2 : numel( t )
+          % tau = BoundaryEdge( Constants.material(), ...
+          % p.triLab, [ 2, 1 ] );
+
           %  solution of BEM equations
           [ sol1, bem ] = solve( bem, obj.exc( tau, k0 ) );
           
@@ -66,16 +74,21 @@ classdef Simulation
           [ fopt, nopt, ~ ] = optforce( sol1 );
           
           % Converstion pico into nano
-          % fopt = fopt.*1e-3;
-          % nopt = nopt.*1e-3;
+          fopt = fopt.*1e3;
+          nopt = nopt.*1e3;
 
           p = p.step( fopt, nopt, obj.dt );
           obj.positions(:, j, i) = p.pos;
           obj.rotMats(:, :, j, i) = p.rotMat_m;
+
+          % Add flow to particle
+          p.pos = p.pos + obj.flow * obj.dt;
       
           multiWaitbar( 'BEM solver', j / numel( t ) );
         end
 
+
+        disp(['Particle ', num2str(i), '/', num2str(numel( obj.particles ))]);
         multiWaitbar( 'Particles', i / numel( obj.particles ) );
       end
       multiWaitbar( 'CloseAll' );
