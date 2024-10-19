@@ -36,13 +36,13 @@ classdef Particle
 
       %Construct an instance of a particle
       obj.diffusionTensor = DiffusionTensor.ellipsoid( obj.halfAxes );
-      obj.triLab = trisphere( 144, 1 );
+      obj.triLab = trisphere( 60, 1 );
       obj.triLab = transform( obj.triLab, 'scale', obj.halfAxes );
       obj.triLab = transform( obj.triLab, 'rot', obj.rotMat_m );
       obj.triLab = transform( obj.triLab, 'shift', obj.pos );
     end
 
-    function obj = step( obj, fopt, nopt, dt )
+    function obj = step( obj, fopt, nopt, flow, dt )
 
       % Calculate force and torque in particles system (marked)
       fnopt_m = zeros( 6, 1 );
@@ -66,6 +66,7 @@ classdef Particle
       verts_m = dRotMat_m * verts_m.';
 
       obj.pos = obj.pos + (obj.rotMat_m * dPosRot_m(1:3)).';
+      obj.pos = obj.pos + flow * dt;
       obj.triLab.verts = verts_m.' + obj.pos;
 
       obj.rotMat_m = obj.rotMat_m * dRotMat_m;

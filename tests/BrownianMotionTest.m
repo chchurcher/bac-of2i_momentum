@@ -39,7 +39,7 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
           'rot', [0, 0, 0]);
 
         for j = 1:numel(t)
-          particle = particle.step(zeros(1, 3), zeros(1, 3), delta_t);
+          particle = particle.step(zeros(1, 3), zeros(1, 3), [0, 0, 0], delta_t);
         end
 
         finalPositions(:, i) = particle.pos;

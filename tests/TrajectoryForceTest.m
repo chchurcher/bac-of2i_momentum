@@ -34,7 +34,7 @@ classdef TrajectoryForceTest < matlab.unittest.TestCase
           'rot', [0, alpha, 0]);
 
         for i = 1:numel(testCase.t)
-          particle = particle.step(force(i, :), torque, testCase.delta_t);
+          particle = particle.step(force(i, :), torque, [0, 0, 0], testCase.delta_t);
         end
 
         beta = pi/2 - alpha;
@@ -63,7 +63,7 @@ classdef TrajectoryForceTest < matlab.unittest.TestCase
           'rot', [0, pi/4, pi/4]);
 
       for i = 1:10
-        particle = particle.step(gravity(i, :), torque, testCase.delta_t);
+        particle = particle.step(gravity(i, :), torque, [0, 0, 0], testCase.delta_t);
       end
 
       % Test for drift into positive x and y direction

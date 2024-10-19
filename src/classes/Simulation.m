@@ -2,7 +2,7 @@ classdef Simulation
   %SIMULATION Performs a simulations of different particles in a plane wave
 
   properties
-    particles
+    particle
     positions
     rotMats
     lambda
@@ -14,9 +14,9 @@ classdef Simulation
 
   methods
 
-    function obj = Simulation( particles )
-      %TRAJECTORY Constructor method
-      obj.particles = particles;
+    function obj = Simulation( particle )
+      %SIMULATION Constructor method
+      obj.particle = particle;
     end
 
     function obj = options( obj, varargin )
@@ -41,55 +41,44 @@ classdef Simulation
 
     function obj = start( obj )
 
-      t = 0:obj.dt:obj.end_t;
-      obj.positions = zeros( 3, numel( t ), numel( obj.particles ) );
-      obj.rotMats = zeros( 3, 3, numel( t ), numel( obj.particles ) );
-
-      k0 = 2 * pi / obj.lambda;
-      
-      %  boundary elements with linear shape functions
-      tau = BoundaryEdge( Constants.material(), ...
-        obj.particles(1).triLab, [ 2, 1 ] );
-      
-      %  initialize BEM solver
-      rules = quadboundary.rules( 'quad3', triquad( 3 ) );
-      bem = galerkin.bemsolver( tau, 'rules', rules, 'waitbar', 1 );
-      
       multiWaitbar( 'BEM solver', 0, 'Color', 'g', 'CanCancel', 'on' );
-      multiWaitbar( 'Particles', 0, 'Color', 'g', 'CanCancel', 'on' );
 
-      for i = 1 : numel( obj.particles )
-        p = obj.particles(i);
-        obj.positions(:, 1, i) = p.pos;
-        obj.rotMats(:, :, 1, i) = p.rotMat_m;
-        %  loop over timesteps
-        for j = 2 : numel( t )
-          % tau = BoundaryEdge( Constants.material(), ...
-          % p.triLab, [ 2, 1 ] );
+      t = 0:obj.dt:obj.end_t;
+      k0 = 2 * pi / obj.lambda;
 
-          %  solution of BEM equations
-          [ sol1, bem ] = solve( bem, obj.exc( tau, k0 ) );
-          
-          %  optical force and torque
-          [ fopt, nopt, ~ ] = optforce( sol1 );
-          
-          % Converstion pico into nano
-          fopt = fopt.*1e3;
-          nopt = nopt.*1e3;
+      obj.positions = zeros( 3, numel( t ) );
+      obj.rotMats = zeros( 3, 3, numel( t ) );
 
-          p = p.step( fopt, nopt, obj.dt );
-          obj.positions(:, j, i) = p.pos;
-          obj.rotMats(:, :, j, i) = p.rotMat_m;
+      p = obj.particle;
+      obj.positions(:, 1) = p.pos;
+      obj.rotMats(:, :, 1) = p.rotMat_m;
 
-          % Add flow to particle
-          p.pos = p.pos + obj.flow * obj.dt;
-      
-          multiWaitbar( 'BEM solver', j / numel( t ) );
-        end
+      %  loop over timesteps
+      for j = 2 : numel( t )
 
+        %  boundary elements with linear shape functions
+        tau = BoundaryEdge( Constants.material(), ...
+          p.triLab, [ 2, 1 ] );
+  
+        %  initialize BEM solver
+        rules = quadboundary.rules( 'quad3', triquad( 3 ) );
+        bem = galerkin.bemsolver( tau, 'rules', rules, 'waitbar', 1 );
+        
+        %  solution of BEM equations
+        [ sol1, ~ ] = solve( bem, obj.exc( tau, k0 ) );
+        
+        %  optical force and torque
+        [ fopt, nopt, ~ ] = optforce( sol1 );
+        fopt = fopt *1e-3;
+        nopt = nopt *1e-3;
+        disp(['Force=', num2str(fopt)]);
 
-        disp(['Particle ', num2str(i), '/', num2str(numel( obj.particles ))]);
-        multiWaitbar( 'Particles', i / numel( obj.particles ) );
+        p = p.step( fopt, nopt, obj.flow, obj.dt );
+        obj.positions(:, j) = p.pos;
+        obj.rotMats(:, :, j) = p.rotMat_m;
+    
+        multiWaitbar( 'BEM solver', j / numel( t ) );
+
       end
       multiWaitbar( 'CloseAll' );
 
@@ -99,11 +88,9 @@ classdef Simulation
       %VISUALIZEPLOT3 Trajectory in a plot3 chart
 
       figure;
-      for i = 1:numel( obj.particles )
-        xyz = num2cell(obj.positions(:,:,i), 2);
-        [X, Y, Z] = xyz{:};
-        plot3(X, Y, Z); hold on
-      end
+      xyz = num2cell(obj.positions(:,:), 2);
+      [X, Y, Z] = xyz{:};
+      plot3(X, Y, Z);
 
       title('Plot3 of Trajectory')
       xlabel('X');

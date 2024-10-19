@@ -20,9 +20,6 @@ else
   B = AB(2);
 end
 
-A = A * 200e5;
-B = B * 200e5;
-
 m = 2;
 zR =  1/2 * k1 * w0^2;
 
@@ -42,10 +39,10 @@ h = zeros( [pos_num, 3] );
 % abstract functions
 w = @(z) w0 * sqrt(1 + (z/zR).^2);
 
-% u_0 = @(r, z) (1./(1+1i*z/zR) .* exp(-(r.^2/w0.^2)./(1+1i*z/zR)));
+u_0 = @(r, z) (1./(1+1i*z/zR) .* exp(-(r.^2/w0.^2)./(1+1i*z/zR)));
 % With time dependence of beam
-u_0 = @(r, z) (1./(1+1i*z/zR) .* exp(-(r.^2/w0.^2)./(1+1i*z/zR)) ...
-  .* exp(1i*k1*r/(2*pi)));
+% u_0 = @(r, z) (1./(1+1i*z/zR) .* exp(-(r.^2/w0.^2)./(1+1i*z/zR)) ...
+%   .* exp(1i*k1*r/(2*pi)));
 
 sq2 = sqrt(2);
 u_m = @(r, phi, z) ((sq2.*r./w(z)).^m .* exp(-1i*m*atan2(z, zR)) ...
