@@ -3,6 +3,7 @@ classdef laguerregauss
   
   properties
     w_0     %  beam waist
+    pol     %  pol
   end
   
   properties (Hidden)
@@ -18,6 +19,7 @@ classdef laguerregauss
       %    obj = laguerregauss( w_0, varargin )
       %  Input
       %    w_0    :  beam waist of beam
+      %    pol    :  polarization
       obj = init( obj, varargin{ : } );
     end
   end

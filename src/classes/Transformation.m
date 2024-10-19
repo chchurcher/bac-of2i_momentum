@@ -154,6 +154,12 @@ classdef Transformation
       end
     end
 
+    function out = posRot( data )
+      persistent PosRot;
+      if nargin, PosRot = data; end
+      out = PosRot;
+    end
+
     function [X, Y, Z, U, V, W] = getQuiverZaxis(posRots)
       %GETQUIVERSZAXIS Used for ploting a trajectory in the quiver3 plot
       %   The unit vector in z direction in the particle system is

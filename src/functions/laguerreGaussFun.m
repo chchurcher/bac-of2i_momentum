@@ -1,4 +1,4 @@
-function [e, h] = laguerreGaussFun( pos, k1, Z1, w0, AB )
+function [e, h] = laguerreGaussFun( pos_m, k1, Z1, w0, AB )
 % FIELDS2 - Electromagnetic fields for a laguerre gauss beam
 % 
 % Input
@@ -23,14 +23,14 @@ end
 m = 2;
 zR =  1/2 * k1 * w0^2;
 
-pos_size = size( pos );
+pos_size = size( pos_m );
 
 if pos_size(end) ~= 3
   error('Postition array must be in shape (..,3)')
 end
 
 pos_num = prod(pos_size(1:end-1));
-pos = reshape(pos, [pos_num, 3]);
+pos_m = reshape(pos_m, [pos_num, 3]);
 
 %  allocate output
 e = zeros( [pos_num, 3] );
@@ -42,15 +42,19 @@ w = @(z) w0 * sqrt(1 + (z/zR).^2);
 u_0 = @(r, z) (1./(1+1i*z/zR) .* exp(-(r.^2/w0.^2)./(1+1i*z/zR)));
 % With time dependence of beam
 % u_0 = @(r, z) (1./(1+1i*z/zR) .* exp(-(r.^2/w0.^2)./(1+1i*z/zR)) ...
-%   .* exp(1i*k1*r/(2*pi)));
+%  .* exp(1i*k1*r/(2*pi)));
 
 sq2 = sqrt(2);
 u_m = @(r, phi, z) ((sq2.*r./w(z)).^m .* exp(-1i*m*atan2(z, zR)) ...
   .* exp(1i*m*phi));
 
-x = pos(:, 1);
-y = pos(:, 2);
-z = pos(:, 3);
+posRot = Transformation.posRot;
+posRot(4:6) = 0;
+% disp( ['posRots = ', num2str(posRot.')] )
+pos = Transformation.toLab( repmat(posRot, 1, pos_num), pos_m.' );
+x = pos(1, :).';
+y = pos(2, :).';
+z = pos(3, :).';
 
 %  electric and magnetic field
 r = sqrt(x.^2 + y.^2);
