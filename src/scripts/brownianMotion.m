@@ -1,39 +1,35 @@
 % Brownian Motion of an ellipsoid without external forces
 
 halfAxes = [6, 10, 10];
-startPosition = [0, 0, 0];
-startRotation = [pi/6, pi/4, 0];
+startPosRot = [0; 0; 0; pi/6; pi/4; 0];
+fnopt_m = zeros(6, 1);
 
-dt = 0.1;
-end_t = 10;
+dt = 10;
+end_t = 3600;
 t = 0:dt:end_t;
-
-rng(17);
 
 
 %% Simulation of the Brownian Motion (Random Walk) without external Forces
-particle = Particle( ...
+sim = Simulation( ...
           'brownian', true, ...
           'halfAxes', halfAxes, ...
-          'pos', startPosition, ...
-          'rot', startRotation);
+          'posRots', startPosRot, ...
+          't', t);
 
-positions = zeros(3, numel( t ));
-rotMats = zeros(3, 3, numel( t ));
-for i = 1:numel(t)
-    particle = particle.step([0, 0, 0], [0, 0, 0], dt);
-    positions(:, i) = particle.pos;
-    rotMats(:, :, i) = particle.rotMat_m;
+posRots = zeros(6, numel( t ));
+posRots(:, 1) = startPosRot;
+for i = 2:numel(t)
+    posRots(:, i) = sim.particleStep(posRots(:, i-1), fnopt_m, dt);
 end
 
 
 %% Plotting the results
 % Visualize Ellipsoid
-visualizeEllipsoid( halfAxes, [startPosition, startRotation].' );
+visualizeEllipsoid( halfAxes, startPosRot );
 
 % Plot3
 figure;
-xyz = num2cell(positions, 2);
+xyz = num2cell(posRots(1:3, :), 2);
 [X, Y, Z] = xyz{:};
 plot3(X, Y, Z); hold on
 
@@ -48,24 +44,23 @@ grid on;
 figure;
 sgtitle('Unit vector z'' of Particle in Lab-System');
 
-z = pagemtimes( rotMats, [0; 0; 1]);
+z = pagemtimes( Transformation.rotMatToLab( posRots(4:6, :)), [0; 0; 1]);
 z = reshape(z, [3, numel( t )]);
 for i = 1:3
   subplot(3, 1, i);
   plot(t, z(i, :)); hold on
+  ylim([-1, 1])
+  xlabel('time / s')
 end
 
 subplot(3, 1, 1);
-xlabel('time / s')
 ylabel('x * z''')
 title('x-component')
 
 subplot(3, 1, 2);
-xlabel('time / s')
 ylabel('y * z''')
 title('y-component')
 subplot(3, 1, 3);
 
 xlabel('time / s')
-ylabel('z * z''')
 title('z-component')

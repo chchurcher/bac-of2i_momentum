@@ -11,19 +11,20 @@ classdef Simulation
     flow
     halfAxes
     diffusionTensor
-    bem
-    tau
+    numElements
   end
 
   methods
-
     function obj = Simulation( varargin )
       %SIMULATION Constructor method
 
+      obj.numElements = 60;
       obj.flow = [0, 0, 0];
       obj.halfAxes = [1, 1, 1];
       obj.isBrownianMotion = true;
       obj.isPreventRotation = false;
+      obj.lambda = Constants.lambda;
+      startPosRots = [];
 
       for i = 1 : 2 : numel( varargin )
         val = varargin{ i + 1 };
@@ -33,7 +34,7 @@ classdef Simulation
           case 'prevent_rotation'
             obj.isPreventRotation = val;
           case 'posRots'
-            obj.posRots = val;
+            startPosRots = val;
           case 'halfAxes'
             obj.halfAxes = val;
           case 'lambda'
@@ -44,52 +45,45 @@ classdef Simulation
             obj.exc = val;
           case 'flow'
             obj.flow = val;
+          case 'numElements'
+            obj.numElements = val;
         end
       end
 
       obj.diffusionTensor = DiffusionTensor.ellipsoid( obj.halfAxes );
 
-      ts = trisphere( 60, 1 );
+      n = size(startPosRots, 2);
+      obj.posRots = zeros( 6, numel( obj.t ), n );
+      obj.posRots(:, 1, :) = startPosRots;
+    end
+
+    function [bem, tau] = getBemTau( obj )
+      ts = trisphere( obj.numElements, 1 );
       ts = transform( ts, 'scale', obj.halfAxes );
 
       %  boundary elements with linear shape functions
-      obj.tau = BoundaryEdge( Constants.material(), ts, [ 2, 1 ] );
+      tau = BoundaryEdge( Constants.material(), ts, [ 2, 1 ] );
   
       %  initialize BEM solver
       rules = quadboundary.rules( 'quad3', triquad( 3 ) );
-      obj.bem = galerkin.bemsolver( obj.tau, 'rules', rules, 'waitbar', 1 );
+      bem = galerkin.bemsolver( tau, 'rules', rules, 'waitbar', 1 );
     end
 
-
     function obj = start( obj )
-
-      n = size(obj.posRots, 2);
-      k0 = 2 * pi / obj.lambda;
-
-      startPosRots = obj.posRots;
-      obj.posRots = zeros( 6, numel( obj.t ), n );
-      obj.posRots(:, 1, :) = startPosRots;
+      [bem, tau] = obj.getBemTau();
 
       multiWaitbar( 'BEM solver', 0, 'Color', 'g', 'CanCancel', 'on' );
       multiWaitbar( 'Particles', 0, 'Color', 'g', 'CanCancel', 'on' );
 
+      n = size(obj.posRots, 3);
       for i = 1:n
 
         %  loop over timesteps
         for j = 2:numel( obj.t )
 
           actPosRot = obj.posRots(:, j-1, i);
-          % Save static posRot in Transformation
-          Transformation.posRot( actPosRot );
-
-          %  solution of BEM equations
-          [ sol1, ~ ] = solve( obj.bem, obj.exc( obj.tau, k0 ) );
+          fnopt_m = obj.calcForce( actPosRot, bem, tau ) * 1e6;
           
-          %  optical force and torque
-          [ fopt, nopt, ~ ] = optforce( sol1 );
-          fnopt_m = [ fopt.'; nopt.' ];
-          disp(['Force =   ', num2str(fopt)]);
-  
           dt = obj.t(j) - obj.t(j-1);
           obj.posRots(:, j, i) = obj.particleStep( actPosRot, fnopt_m, dt );
       
@@ -103,6 +97,23 @@ classdef Simulation
 
     end
 
+    function fnopt_m = calcForce( obj, actPosRot, bem, tau )
+
+      % Save static posRot in Transformation
+      Transformation.posRot( actPosRot );
+      k0 = 2 * pi / obj.lambda;
+
+      %  solution of BEM equations
+      [ sol1, ~ ] = solve( bem, obj.exc( tau, k0 ) );
+
+      %  optical force and torque
+      [ fopt, nopt, ~ ] = optforce( sol1 );
+      fnopt_m = [ fopt.'; nopt.' ];
+
+      % Scaling of the forces
+      fnopt_m = 1.65e-5 * fnopt_m;
+
+    end
 
     function newPosRot = particleStep( obj, actPosRot, fnopt_m, dt )
 

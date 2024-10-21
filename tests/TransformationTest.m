@@ -60,6 +60,17 @@ classdef TransformationTest < matlab.unittest.TestCase
       actual = Transformation.rotMatToLab( sum(angles, 2) );
       testCase.verifyEqual( actual, expected, 'RelTol', 1e-6);
     end
+
+    function byHandTest(testCase)
+
+      posRot = [5; 6; 7; pi/4; 0; 0];
+      position_m = [1; 1; 0];
+
+      pos_act = Transformation.toLab( posRot, position_m );
+      pos_exp = [6; 6+1/sqrt(2); 7+1/sqrt(2)];
+
+      testCase.verifyEqual( pos_act, pos_exp, 'RelTol', 1e-6 );
+    end
   end
 
 end

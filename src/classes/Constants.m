@@ -3,15 +3,17 @@ classdef Constants
     
     properties (Constant)
         k_B = 1.380649e-23
-        T = 300
-        eta_water = 1e-3
-        lgWaist = 1.0;
+        T = 293
+        eta_water = 9.544e-4
+        w0 = 4.78e3
+        lambda = 532
+        v_fluid = 0.3e6
     end
 
     methods (Static)
       function mat = material()
         mat1 = Material( 1.33 ^ 2, 1 );
-        mat2 = Material( epstable( 'gold.dat' ), 1 );
+        mat2 = Material( 1.59 ^ 2, 1 );  % epstable( 'gold.dat' )
         mat = [ mat1, mat2 ];
       end
     end

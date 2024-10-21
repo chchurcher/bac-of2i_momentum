@@ -10,7 +10,7 @@ function [e, h] = laguerreGaussFun( pos_m, k1, Z1, w0, AB )
 
 if nargin < 2, k1 = 2*pi/650; end
 if nargin < 3, Z1 = 1; end
-if nargin < 4, w0 = 1; end
+if nargin < 4, w0 = Constants.w0; end
 
 if nargin < 5
   A = 1 / sqrt(2);
@@ -44,13 +44,10 @@ u_0 = @(r, z) (1./(1+1i*z/zR) .* exp(-(r.^2/w0.^2)./(1+1i*z/zR)));
 % u_0 = @(r, z) (1./(1+1i*z/zR) .* exp(-(r.^2/w0.^2)./(1+1i*z/zR)) ...
 %  .* exp(1i*k1*r/(2*pi)));
 
-sq2 = sqrt(2);
-u_m = @(r, phi, z) ((sq2.*r./w(z)).^m .* exp(-1i*m*atan2(z, zR)) ...
+u_m = @(r, phi, z) ((sqrt(2).*r./w(z)).^m .* exp(-1i*m*atan2(z, zR)) ...
   .* exp(1i*m*phi));
 
 posRot = Transformation.posRot;
-posRot(4:6) = 0;
-% disp( ['posRots = ', num2str(posRot.')] )
 pos = Transformation.toLab( repmat(posRot, 1, pos_num), pos_m.' );
 x = pos(1, :).';
 y = pos(2, :).';
@@ -65,17 +62,20 @@ e(:, 2) = B * u_0(r, z) .* u_m(r, phi, z) .* exp(1i*k1*z);
 e(:, 3) = ...
   ((m*(1i*x+y)./(k1*r.^2)) - ((1i*x)./(1i*z-zR)) ...
   - ((4i*x)./(k1*w(z).^2))) .* e(:, 1) + ...
-  ((m*(1i*x-y)./(k1*r.^2)) - ((1i*y)./(1i*z-zR)) ...
+  ((m*(1i*y-x)./(k1*r.^2)) - ((1i*y)./(1i*z-zR)) ...
   - ((4i*y)./(k1*w(z).^2))) .* e(:, 2);
 
 h(:, 1) = (-B/Z1) * u_0(r, z) .* u_m(r, phi, z) .* exp(1i*k1*z);
 h(:, 2) = (A/Z1) * u_0(r, z) .* u_m(r, phi, z) .* exp(1i*k1*z);
 h(:, 3) = ...
   ((m*(1i*x+y)./(k1*r.^2)) - ((1i*x)./(1i*z-zR)) ...
-  + ((4i*x)./(k1*w(z).^2))) .* h(:, 1) + ...
+  - ((4i*x)./(k1*w(z).^2))) .* h(:, 1) + ...
   ((m*(1i*y-x)./(k1*r.^2)) - ((1i*y)./(1i*z-zR)) ...
   - ((4i*y)./(k1*w(z).^2))) .* h(:, 2);
 
-e = reshape(e, [pos_size(1:end-1), 3]);
-h = reshape(h, [pos_size(1:end-1), 3]);
+e = Transformation.rotMatToParticle( posRot(4:6) ) * e.';
+h = Transformation.rotMatToParticle( posRot(4:6) ) * h.';
+
+e = reshape(e.', [pos_size(1:end-1), 3]);
+h = reshape(h.', [pos_size(1:end-1), 3]);
 end

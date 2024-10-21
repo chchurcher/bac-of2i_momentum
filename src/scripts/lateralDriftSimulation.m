@@ -2,38 +2,35 @@
 % causes a lateral drift of the spheroid
 
 n = 13;
-angles = linspace(0, -pi/2, n);
-halfAxes = [7.5, 7.5, 2.5];
+a = 7.5;
+b = 2.5;
 
-dt = 1e-10;
-end_t = 2e-9;
+dt = 0.02;
+end_t = 0.27;
 t = 0:dt:end_t;
 
-force = 1e-9 * [0, 0, -9.81];
-torque = [0, 0, 0];
+startPosRots = zeros(6, n);
+startPosRots(5, :) = linspace(0, pi/2, n);
+halfAxes = [a, a, b];
+
+force = [0, 0, -9.81];
+torque = [0; 0; 0];
 
 
 %% Simulation with constant force
-positions = zeros(3, numel( t ), n);
-K = ResistanceTensor.ellipsoid( halfAxes );
-D = (Constants.k_B * Constants.T * 6e24) \ K;
-endPositions = zeros( 3, n );
-
-for i = 1:n
-  particle = Particle( ...
+sim = Simulation( ...
     'brownian', false, ...
     'halfAxes', halfAxes, ...
-    'pos', [0, 0, 0], ...
-    'rot', [0, angles(i), 0]);
+    'posRots', startPosRots, ...
+    't', t);
 
-  % Overwrite with different viscosity n=0.1667
-  particle.diffusionTensor = D;
-
-  for j = 1:numel(t)
-    particle = particle.step(force, torque, dt);
-    positions(:, j, i) = particle.pos;
+for i = 1:n
+  for j = 2:numel(t)
+    actPosRot = sim.posRots(:, j-1, i);
+    force_m = Transformation.rotMatToParticle( actPosRot(4:6) ) * force.';
+    sim.posRots(:, j, i) = sim.particleStep( ...
+      actPosRot, [force_m; torque], dt);
   end
-  endPositions(:, i) = particle.pos;
 end
 
 
@@ -51,18 +48,21 @@ gradient = [gradient1, gradient2(:, 2:end)];
 
 figure
 for i = 1:n
-  plot(positions(1, :, i), positions(3, :, i), ...
+  plot(sim.posRots(1, :, i), sim.posRots(3, :, i), ...
     'color', gradient(:, i), ...
     'LineWidth', 1.5);
   hold on
 end
 
-plot(endPositions(1, :), endPositions(3, :), 'k--*');
+endPos = sim.posRots(1:3, end, :);
+endPos = reshape( endPos, [3, n] );
+plot(endPos(1, :), endPos(3, :), 'k--*');
 
-title('Trajectory of a spheroid settling at an angle')
+title(sprintf('Trajectory of a spheroid (%.1f, %.1f) settling', a, b))
 xlabel('x')
 ylabel('z')
-angleStrings = arrayfun(@(num) sprintf('%.1f', num), angles*180/pi, ...
+angleStrings = arrayfun(@(num) sprintf('%.1f', num), ...
+  startPosRots(5, :)*180/pi, ...
   'UniformOutput', false);
 legend(angleStrings)
 grid on
