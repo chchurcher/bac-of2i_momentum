@@ -84,7 +84,7 @@ classdef Simulation
         for j = 2:numel( obj.t )
 
           actPosRot = obj.posRots(:, j-1, i);
-          fnopt_m = obj.calcForce( actPosRot, bem, tau ) * 1e6;
+          fnopt_m = obj.calcForce( actPosRot, bem, tau );
           obj.fnopts_m(:, j-1, i) = fnopt_m;
           
           dt = obj.t(j) - obj.t(j-1);
@@ -114,7 +114,7 @@ classdef Simulation
       fnopt_m = [ fopt.'; nopt.' ];
 
       % Scaling of the forces
-      fnopt_m = 1.65e-5 * fnopt_m;
+      % fnopt_m = 1.65e-5 * fnopt_m;
 
     end
 

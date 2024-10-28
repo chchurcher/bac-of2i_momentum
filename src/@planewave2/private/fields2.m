@@ -15,30 +15,32 @@ mat = pt.tau( 1 ).mat( obj.imat );
 %  wavelength and impedance in medium
 [ k1, Z1 ] = deal( mat.k( k0 ), mat.Z( k0 ) );
 
-%  positions 
-pos_m = eval( pt );
 
-% !! Change coordinate system to lab system
+% !! Change coordinate system to lab system !!
+pos_m = eval( pt );
+pos_size = size( pos_m );
+
+pos_num = prod(pos_size(1:end-1));
+pos_m = reshape(pos_m, [pos_num, 3]);
+
 posRot = Transformation.posRot;
 pos = Transformation.toLab( repmat(posRot, 1, pos_num), pos_m.' );
+pos = pos.';
 
 %  allocate output
-e = zeros( size( pos, 1 ), size( pos, 2 ), 3, size( obj.pol, 1 ) );
-h = zeros( size( pos, 1 ), size( pos, 2 ), 3, size( obj.pol, 1 ) );
+e = zeros( [pos_num, 3] );
+h = zeros( [pos_num, 3] );
 
 if any( pt.tau( 1 ).inout == obj.imat )
-  %  dummy indices for internal tensor class
-  [ i, ipol, q, k ] = deal( 1, 2, 3, 4 );
-  %  polarization pol(ipol,k) and light propagation direction
-  pol = tensor( obj.pol, [ ipol, k ] );
-  dir = tensor( obj.dir, [ ipol, k ] );
-  %  positions
-  pos = tensor( pos, [ i, q, k ] );
+  dir = repmat( obj.dir, pos_num, 1 );
   
   %  electric and magnetic field
-  e = pol * exp( 1i * k1 * dot( pos, dir, k ) );
-  h = cross( dir, e, k ) / Z1;
-  %  convert to numeric
-  e = double( e, [ i, q, k, ipol ] );
-  h = double( h, [ i, q, k, ipol ] );
+  e = obj.pol .* exp( 1i * k1 * dot( pos, dir, 2 ) );
+  h = cross( dir, e, 2 ) / Z1;
+
+  e = Transformation.rotMatToParticle( posRot(4:6) ) * e.';
+  h = Transformation.rotMatToParticle( posRot(4:6) ) * h.';
+  
+  e = reshape(e.', [pos_size(1:end-1), 3]);
+  h = reshape(h.', [pos_size(1:end-1), 3]);
 end

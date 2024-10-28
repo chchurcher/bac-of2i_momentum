@@ -1,16 +1,14 @@
 %  Simulation of oblated spheroids in a plane wave with different starting
 %  rotations
 
-n = 2;
+n = 13;
 halfAxes = [750, 750, 250];
 
 startPosRots = zeros(6, n);
-startPosRots(4, :) = linspace(0, pi/2, n);
+startPosRots(5, :) = linspace(0, pi, n);
 
-dt = 0.02;
-end_t = 6;
-t = 0:dt:end_t;
-exc = galerkin.planewave( [1, 0, 0], [0, 0, 1] );
+t = [0:0.005:0.3, 0.32:0.02:1];
+exc = planewave2( [1, 0, 0], [0, 0, 1] );
 
 
 %% Calculation of a spheroid in a plane wave
@@ -22,36 +20,46 @@ sim = Simulation( ...
     'exc', exc, ...
     'numElements', 144);
 sim = sim.start();
-%sim.visualizePlot3();
+sim.visualizePlot3();
 
 %% Plotting the rotation process
 figure;
-sgtitle({'Unit vector z'' of particle in lab system', ...
+tiledlayout(3,1)
+sgtitle({'Unit vector z'' of particle in lab system at angles \beta', ...
   'z''=(0,0,1) in (x,y,z)'});
 
 for i = 1:n
-  z = pagemtimes( Transformation.rotMatToLab( sim.posRots(4:6, :, i) ), [0; 0; 1]);
+  rotMats = Transformation.rotMatToLab( sim.posRots(4:6, :, i) );
+  z = pagemtimes(rotMats , [0; 0; 1]);
   z = reshape(z, [3, numel( t )]);
+
   for j = 1:3
-    subplot(3, 1, j);
+    nexttile(j);
     plot(t, z(j, :)); hold on
   end
 end
 
-subplot(3, 1, 1);
+nexttile(1);
 xlabel('time / s')
 ylabel('x * z''')
 title('x-component')
 
-subplot(3, 1, 2);
+nexttile(2);
 xlabel('time / s')
 ylabel('y * z''')
 title('y-component')
-subplot(3, 1, 3);
 
+nexttile(3);
 xlabel('time / s')
 ylabel('z * z''')
 title('z-component')
+
+nexttile(1);
+angleStrings = arrayfun(@(num) sprintf('%.0f', num), ...
+  startPosRots(5, :)*180/pi, ...
+  'UniformOutput', false);
+lg = legend(angleStrings);
+lg.Layout.Tile = 'East';
 
 
 %% Plotting the end positions
