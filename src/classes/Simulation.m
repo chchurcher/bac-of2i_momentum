@@ -3,6 +3,7 @@ classdef Simulation
 
   properties
     posRots
+    fnopts_m
     isBrownianMotion;
     isPreventRotation;
     lambda
@@ -55,6 +56,7 @@ classdef Simulation
       n = size(startPosRots, 2);
       obj.posRots = zeros( 6, numel( obj.t ), n );
       obj.posRots(:, 1, :) = startPosRots;
+      obj.fnopts_m = zeros(6, numel( obj.t ), n );
     end
 
     function [bem, tau] = getBemTau( obj )
@@ -83,6 +85,7 @@ classdef Simulation
 
           actPosRot = obj.posRots(:, j-1, i);
           fnopt_m = obj.calcForce( actPosRot, bem, tau ) * 1e6;
+          obj.fnopts_m(:, j-1, i) = fnopt_m;
           
           dt = obj.t(j) - obj.t(j-1);
           obj.posRots(:, j, i) = obj.particleStep( actPosRot, fnopt_m, dt );

@@ -6,7 +6,7 @@ a = 7.5;
 b = 2.5;
 
 dt = 0.02;
-end_t = 0.27;
+end_t = 0.5;
 t = 0:dt:end_t;
 
 startPosRots = zeros(6, n);
@@ -58,7 +58,7 @@ endPos = sim.posRots(1:3, end, :);
 endPos = reshape( endPos, [3, n] );
 plot(endPos(1, :), endPos(3, :), 'k--*');
 
-title(sprintf('Trajectory of a spheroid (%.1f, %.1f) settling', a, b))
+title(sprintf('Settling of an ellipsoid [%.1f, %.1f, %.1f] with different rotations', halfAxes))
 xlabel('x')
 ylabel('z')
 angleStrings = arrayfun(@(num) sprintf('%.1f', num), ...

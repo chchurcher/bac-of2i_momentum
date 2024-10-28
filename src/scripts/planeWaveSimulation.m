@@ -1,14 +1,14 @@
 %  Simulation of oblated spheroids in a plane wave with different starting
 %  rotations
 
-n = 1;
-halfAxes = [500, 500, 1];
+n = 2;
+halfAxes = [750, 750, 250];
 
 startPosRots = zeros(6, n);
-startPosRots(4, :) = linspace(0, pi, n);
+startPosRots(4, :) = linspace(0, pi/2, n);
 
 dt = 0.02;
-end_t = 2;
+end_t = 6;
 t = 0:dt:end_t;
 exc = galerkin.planewave( [1, 0, 0], [0, 0, 1] );
 

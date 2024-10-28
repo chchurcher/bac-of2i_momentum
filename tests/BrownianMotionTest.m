@@ -14,7 +14,6 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
       testCase.numRuns = 200;
       testCase.showCharts = true;
       testCase.alpha = 0.05;
-      testCase.startPosition = [0.05, 0.1, -0.05];
     end
   end
 
@@ -23,30 +22,32 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
 
     function gaussianDistributionTest(testCase)
       n = testCase.numRuns;
+      startPosRots = repmat( [-0.5; 1; 0.5; 0; 0; 0], 1, n );
       halfAxes = 1e-5 * [10, 5, 1];
-      finalPositions = zeros(3, n);
 
       delta_t = 1e9;
       end_t = 50e9;
       t = 0:delta_t:end_t;
 
+      sim = Simulation( ...
+        'brownian', true, ...
+        'prevent_rotation', true, ...
+        'halfAxes', halfAxes, ...
+        'posRots', startPosRots);
+      
+      posRots = sim.posRots;
       for i = 1:n
-        particle = Particle( ...
-          'brownian', true, ...
-          'prevent_rotation', true, ...
-          'halfAxes', halfAxes, ...
-          'pos', testCase.startPosition, ...
-          'rot', [0, 0, 0]);
-
-        for j = 1:numel(t)
-          particle = particle.step(zeros(1, 3), zeros(1, 3), [0, 0, 0], delta_t);
+        for j = 2:numel(t)
+          posRots(:, j, i) = sim.particleStep( ...
+            posRots(:, j-1, i), zeros(6, 1), delta_t);
         end
-
-        finalPositions(:, i) = particle.pos;
       end
 
+      finalPositions = posRots(1:3, end, :);
+      finalPositions = reshape(finalPositions, [3, n]);
+
       D = DiffusionTensor.ellipsoid( halfAxes );
-      expectedMu = testCase.startPosition;
+      expectedMu = startPosRots(1:3, :);
       expectedSigma = sqrt(2*diag(D)*end_t);
       for d = 1:3
         %Test for being a normal distribution
