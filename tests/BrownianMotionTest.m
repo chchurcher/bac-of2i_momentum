@@ -23,7 +23,7 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
     function gaussianDistributionTest(testCase)
       n = testCase.numRuns;
       startPosRots = repmat( [-0.5; 1; 0.5; 0; 0; 0], 1, n );
-      halfAxes = 1e-5 * [10, 5, 1];
+      halfAxes = [10, 5, 1];
 
       delta_t = 1e9;
       end_t = 50e9;
@@ -89,7 +89,7 @@ classdef BrownianMotionTest < matlab.unittest.TestCase
   methods(Static)
     function plotHistogram(finalPositions, mu, sigma)
       figure;
-      sgtitle('Gaussian distribution test');
+      sgtitle('Gaussian distribution test [10, 5, 1]');
       dimension = ['x', 'y', 'z'];
       for d = 1:3
         subplot(1, 3, d);

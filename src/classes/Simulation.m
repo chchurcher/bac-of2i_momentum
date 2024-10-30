@@ -73,11 +73,13 @@ classdef Simulation
 
     function obj = start( obj )
       [bem, tau] = obj.getBemTau();
+      n = size(obj.posRots, 3);
 
       multiWaitbar( 'BEM solver', 0, 'Color', 'g', 'CanCancel', 'on' );
-      multiWaitbar( 'Particles', 0, 'Color', 'g', 'CanCancel', 'on' );
+      if n > 1
+        multiWaitbar( 'Particles', 0, 'Color', 'g', 'CanCancel', 'on' );
+      end
 
-      n = size(obj.posRots, 3);
       for i = 1:n
 
         %  loop over timesteps
@@ -96,7 +98,8 @@ classdef Simulation
 
         multiWaitbar( 'Particles', i / n );
       end
-      multiWaitbar( 'CloseAll' );
+      multiWaitbar( 'BEM solver', 'Close' );
+      multiWaitbar( 'Particles', 'Close' );
 
     end
 
@@ -114,7 +117,7 @@ classdef Simulation
       fnopt_m = [ fopt.'; nopt.' ];
 
       % Scaling of the forces
-      % fnopt_m = 1.65e-5 * fnopt_m;
+      fnopt_m = 16.5 * fnopt_m;
 
     end
 

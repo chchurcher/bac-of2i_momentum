@@ -1,4 +1,4 @@
-z = -5;
+z = -0;
 n = 101;
 lambda = Constants.lambda;
 k = 2*pi/lambda;

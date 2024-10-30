@@ -1,24 +1,25 @@
 %  OPTICALTRAPPING - Simulation of the trajetory of a particles trapped by 
 %  in a laguerre gauss beam
 
-n = 11;
+n = 7;
 % t = [0:0.1:2.5, 2.52:0.02:3.5, 3.6:0.1:6];
 t = 0:0.01:6;
 
 %% Calculation of the flow
 startPosRot = zeros(6, n);
-startPosRot(1, :) = linspace(0, 20e3, n);
+% startPosRot(1, :) = linspace(0, 20e3, n);
+startPosRot(1, :) = 10e3;
 startPosRot(3, :) = -1000e3;
-% startPosRot(5, :) = linspace(0, pi/2, n);
+startPosRot(4, :) = linspace(-pi/2, 0, n);
 
 exc = laguerregauss( Constants.w0, [1, 0] );
 sim = Simulation( ...
   'brownian', false, ...
-  'halfAxes', [ 750, 750, 250 ], ...
+  'halfAxes', halfAxes, ...
   'posRots', startPosRot, ...
   't', t, ...
   'exc', exc, ...
-  'numElements', 250, ...
+  'numElements', 256, ...
   'flow', Constants.v_fluid * [0, 0, 1]);
 sim = sim.start();
 

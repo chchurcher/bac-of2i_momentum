@@ -25,7 +25,7 @@ sim.visualizePlot3();
 %% Plotting the rotation process
 figure;
 tiledlayout(3,1)
-sgtitle({'Unit vector z'' of particle in lab system at angles \beta', ...
+sgtitle({'Unit vector z'' of particle in lab system at angles \alpha', ...
   'z''=(0,0,1) in (x,y,z)'});
 
 for i = 1:n
@@ -42,21 +42,24 @@ end
 nexttile(1);
 xlabel('time / s')
 ylabel('x * z''')
+ylim([-1, 1])
 title('x-component')
 
 nexttile(2);
 xlabel('time / s')
 ylabel('y * z''')
+ylim([-1, 1])
 title('y-component')
 
 nexttile(3);
 xlabel('time / s')
 ylabel('z * z''')
+ylim([-1, 1])
 title('z-component')
 
 nexttile(1);
 angleStrings = arrayfun(@(num) sprintf('%.0f', num), ...
-  startPosRots(5, :)*180/pi, ...
+  startPosRots(4, :)*180/pi, ...
   'UniformOutput', false);
 lg = legend(angleStrings);
 lg.Layout.Tile = 'East';
