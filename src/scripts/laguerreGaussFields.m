@@ -1,4 +1,4 @@
-z = -0;
+z = -500;
 n = 101;
 lambda = Constants.lambda;
 k = 2*pi/lambda;
@@ -6,7 +6,7 @@ k = 2*pi/lambda;
 %% Calculation of the fields
 xyz = linspace(-5*lambda, 5*lambda, n);
 [XX, YY] = meshgrid(xyz, xyz);
-pos = [XX(:), YY(:), z*lambda*ones(size(XX(:)))];
+pos = [XX(:), YY(:), z*ones(size(XX(:)))];
 Transformation.posRot( zeros(6, 1) );
 
 [ e, h ] = laguerreGaussFun( pos, k, 376.7, 1.5*lambda );

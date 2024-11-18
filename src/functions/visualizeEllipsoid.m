@@ -5,7 +5,7 @@ ellipsoid = @(xyz) (xyz(1)/halfAxes(1)).^2 + (xyz(2)/halfAxes(2)).^2 ...
 fun = @(x,y,z) ellipsoid(Transformation.toParticle(posRot, [x;y;z]));
 
 figure;
-interval = [-5 5 -5 5 -5 5].*10;
+interval = [-5 5 -5 5 -5 5].*200;
 fimplicit3(fun, interval);
 
 title('Quiver3 of Ellipsoid')

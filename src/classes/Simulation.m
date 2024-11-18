@@ -117,7 +117,7 @@ classdef Simulation
       fnopt_m = [ fopt.'; nopt.' ];
 
       % Scaling of the forces
-      fnopt_m = 16.5 * fnopt_m;
+      % fnopt_m = 16.5 * fnopt_m;
 
     end
 

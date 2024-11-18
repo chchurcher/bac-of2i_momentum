@@ -10,11 +10,11 @@ classdef TrajectoryForceTest < matlab.unittest.TestCase
       end_t = 2e3;
       t = 0:dt:end_t;
 
-      a = 7.5;
-      b = 2.5;
+      a = 250;
+      b = 750;
       halfAxes = [a, a, b];
 
-      e = sqrt(1 - b^2 / a^2);
+      e = sqrt(1 - a^2 / b^2);
       C_para = 8*e^3/3 / (-2*e + (1+e^2) * log((1+e)/(1-e)));
       C_perp = 16*e^3/3 / (2*e + (3*e^2-1) * log((1+e)/(1-e)));
 

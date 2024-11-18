@@ -3,8 +3,8 @@ classdef Constants
     
     properties (Constant)
         k_B = 1.380649e-23
-        T = 293
-        eta_water = 9.544e-4
+        T = 293.15
+        eta_water = 1.0016e-3
         w0 = 4.78e3
         lambda = 532
         v_fluid = 0.3e6

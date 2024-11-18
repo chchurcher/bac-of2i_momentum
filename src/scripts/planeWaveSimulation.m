@@ -1,13 +1,14 @@
 %  Simulation of oblated spheroids in a plane wave with different starting
 %  rotations
 
-n = 13;
-halfAxes = [750, 750, 250];
+n = 1;
+halfAxes = [250, 250, 750];
 
 startPosRots = zeros(6, n);
-startPosRots(5, :) = linspace(0, pi, n);
+% startPosRots(5, :) = linspace(0, pi, n);
+startPosRots(4, :) = pi/3;
 
-t = [0:0.005:0.3, 0.32:0.02:1];
+t = 0:0.005:0.3;
 exc = planewave2( [1, 0, 0], [0, 0, 1] );
 
 
@@ -89,3 +90,4 @@ ylabel('y / m')
 subplot(3, 1, 3);
 xlabel('\alpha(0) / rad')
 ylabel('z / m')
+

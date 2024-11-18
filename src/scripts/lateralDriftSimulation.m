@@ -2,18 +2,18 @@
 % causes a lateral drift of the spheroid
 
 n = 13;
-a = 7.5;
-b = 2.5;
+a = 250;
+b = 750;
 
 dt = 0.02;
 end_t = 0.5;
 t = 0:dt:end_t;
 
 startPosRots = zeros(6, n);
-startPosRots(5, :) = linspace(0, pi/2, n);
+startPosRots(5, :) = linspace(0, -pi/2, n);
 halfAxes = [a, a, b];
 
-force = [0, 0, -9.81];
+force = [0, 0, -9.81e9];
 torque = [0; 0; 0];
 
 
@@ -37,7 +37,7 @@ end
 
 %% Plotting the results
 % Visualize Ellipsoid
-%visualizeEllipsoid( halfAxes, [0, 0, 0, pi/4, 0, 0].' );
+% visualizeEllipsoid( halfAxes, [0, 0, 0, pi/4, 0, 0].' );
 
 % Plot xz
 m = ceil((n + 1) /2);
@@ -48,19 +48,19 @@ gradient = [gradient1, gradient2(:, 2:end)];
 
 figure
 for i = 1:n
-  plot(sim.posRots(1, :, i), sim.posRots(3, :, i), ...
+  plot(sim.posRots(1, :, i)*1e-6, sim.posRots(3, :, i)*1e-6, ...
     'color', gradient(:, i), ...
     'LineWidth', 1.5);
   hold on
 end
 
 endPos = sim.posRots(1:3, end, :);
-endPos = reshape( endPos, [3, n] );
+endPos = reshape( endPos, [3, n] ) * 1e-6;
 plot(endPos(1, :), endPos(3, :), 'k--*');
 
-title(sprintf('Settling of an ellipsoid [%.1f, %.1f, %.1f] with different rotations', halfAxes))
-xlabel('x')
-ylabel('z')
+title('Settling of a prolate spheroid rotated around the y-axis')
+xlabel('x / mm')
+ylabel('z / mm')
 angleStrings = arrayfun(@(num) sprintf('%.1f', num), ...
   startPosRots(5, :)*180/pi, ...
   'UniformOutput', false);
