@@ -2,9 +2,9 @@
 %  in a plane wave
 
 
-halfAxes = [250, 250, 750];
+halfAxes = [100, 100, 300];
 startPosRots = [0; 0; 0; pi/3; 0; 0];
-t = 0:0.025:4;
+t = 0:0.05:4.5;
 
 exc = planewave2( [1, 0, 0], [0, 0, 1] );
 sim = Simulation( ...
@@ -25,7 +25,8 @@ posRots = sim.posRots(:, :, 1);
 posRots(1, :) = sim.posRots(2, :, 1);
 posRots(2, :) = sim.posRots(3, :, 1);
 posRots(3, :) = sim.posRots(1, :, 1);
-figure;
+
+%figure;
 xyz = num2cell(posRots(1:3, :), 2);
 [X, Y, Z] = xyz{:};
 plot3(X * scaling, Y * scaling, Z * scaling, ...
@@ -34,18 +35,19 @@ hold on
 
 n = size(posRots, 2);
 N = 6;
-for i = [1, ceil((1:1:N-2)*n / (N-1) ), n]
+for i = [1, find(t==0.1), find(t==0.2), find(t==0.3), find(t==0.4), find(t==0.5)]
+%for i = [1, find(t==0.5), find(t==1), find(t==1.5), find(t==2), find(t==2.5), find(t==3), find(t==3.5), find(t==4), find(t==4.5)]
   p = trisphere( 144, 1 );
   p = transform( p, 'scale', halfAxes * scaling);
   p = transform( p, 'rot', Transformation.rotMatToParticle(posRots(4:6, i)) );
   p = transform( p, 'rot', Transformation.rotMatToLab( [-pi/2, -pi/2, 0] ));
   p = transform( p, 'shift', posRots(1:3, i).' * scaling );
   
-  plot( p ); hold on
+  plot( p, 'FaceColor', [0, 255, 0], 'FaceAlpha', 0.7 ); hold on
 end
 
-title('Trajectory of a prolate spheroid in a planewave', ...
-    'Interpreter', 'latex', 'FontSize', 14);
+%title('Trajectory of a prolate spheroid in a planewave', ...
+%    'Interpreter', 'latex', 'FontSize', 14);
 xlabel('$Y\ /\ \mathrm{\mu m}$', ...
     'Interpreter', 'latex', 'FontSize', 12);
 ylabel('$Z\ /\ \mathrm{\mu m}$', ...
@@ -55,10 +57,12 @@ zlabel('$X\ /\ \mathrm{\mu m}$', ...
 
 ax = gca;
 ax.FontSize = 10;
-zlim([-0.2, 2]);
-ylim([-0.5, 10]);
-
-% view(90, 0)
-
-axis equal
+axis equal;
 grid on;
+
+zlim([-0.2, 2]);
+xlim([-0.2, 4]);
+ylim([-0.5, 6]);
+
+view(87, 13);
+camlight('Left');

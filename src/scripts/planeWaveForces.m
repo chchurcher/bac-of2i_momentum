@@ -6,7 +6,7 @@ n = 100;
 halfAxes = [250, 250, 750];
 
 startPosRots = zeros(6, n);
-angles = linspace(0, pi, n);
+angles = linspace(-pi, pi, n);
 startPosRots(5, :) = angles;
 
 t = 0:0.005:0.005;
@@ -26,8 +26,8 @@ sim = sim.start();
 %% Plotting the forces
 figure;
 tiledLayout = tiledlayout(1, 2,  'TileSpacing', 'Compact', 'Padding', 'Compact');
-title(tiledLayout, 'Forces on prolate spheroids in plane waves', ...
-  'Interpreter', 'latex', 'FontSize', 14);
+%title(tiledLayout, 'Forces on prolate spheroids in plane waves', ...
+%  'Interpreter', 'latex', 'FontSize', 14);
 
 fnopts_m = reshape( sim.fnopts_m(:, 1, :), [6, 1, n] );
 rotMat = Transformation.rotMatToParticle( startPosRots(4:6, :) );
@@ -65,8 +65,8 @@ for i = 1:2
   nexttile(i);
   xlabel('$\varphi_x \, / \, \mathrm{^\circ}$', ...
       'Interpreter', 'latex', 'FontSize', 12);
-  xlim([0, 180]);
-  xticks(0:45:180);
+  xlim([-90, 90]);
+  xticks(-90:45:90);
   ax = gca;
   ax.FontSize = 10;
 end
@@ -74,8 +74,8 @@ end
 
 %% Plotting the torque potentials
 figure;
-title('Torque potentials', ...
-  'Interpreter', 'latex', 'FontSize', 14);
+%title('Torque potentials', ...
+%  'Interpreter', 'latex', 'FontSize', 14);
 
 torquePotential = zeros(3, n);
 for i = 1:n
@@ -92,7 +92,7 @@ ylabel('$\textnormal{Torque Potential}\ V \ /\ \mathrm{Nm rad}$', ...
   'Interpreter', 'latex', 'FontSize', 12);
 xlabel('$\varphi_x \, / \, \mathrm{^\circ}$', ...
     'Interpreter', 'latex', 'FontSize', 12);
-xlim([0, 180]);
-xticks(0:45:180);
+xlim([-90, 90]);
+xticks(-90:45:90);
 ax = gca;
 ax.FontSize = 10;

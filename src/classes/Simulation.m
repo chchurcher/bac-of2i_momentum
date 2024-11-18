@@ -36,6 +36,8 @@ classdef Simulation
             obj.isBrownianMotion = val;
           case 'prevent_rotation'
             obj.isPreventRotation = val;
+          case 'stop_equillibrium'
+            obj.isStopOnEquilibrium = val;
           case 'posRots'
             startPosRots = val;
           case 'halfAxes'
@@ -93,6 +95,13 @@ classdef Simulation
           
           dt = obj.t(j) - obj.t(j-1);
           obj.posRots(:, j, i) = obj.particleStep( actPosRot, fnopt_m, dt );
+
+          if obj.isStopOnEquilibrium
+            diff = Transformation.rotMatToLab( obj.posRots(4:6, j, i) ) ...
+              - Transformation.rotMatToLab( obj.posRots(4:6, j-1, i) );
+            disp(sum(diff.^2, 'all'));
+            if sum(diff.^2, 'all') < 8e-6, break; end
+          end
       
           multiWaitbar( 'BEM solver', j / numel( obj.t ) );
 
@@ -127,7 +136,6 @@ classdef Simulation
 
       rotMat = Transformation.rotMatToLab( actPosRot(4:6) );
 
-      % Add number
       dPosRot_m = 1 / (Constants.k_B * Constants.T) ...
         * dt * obj.diffusionTensor * fnopt_m;
 
@@ -145,7 +153,6 @@ classdef Simulation
 
       % Change angle
       dRotMat_m = Transformation.rotMatToLab( dPosRot_m(4:6) );
-      disp(dPosRot_m);
       rotMat_m = rotMat * dRotMat_m;
       newPosRot(4:6) = Transformation.toAngles( rotMat_m );
     end
