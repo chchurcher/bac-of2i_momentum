@@ -30,16 +30,17 @@ title(tiledLayout, 'Forces on prolate spheroids in plane waves', ...
   'Interpreter', 'latex', 'FontSize', 14);
 
 fnopts_m = reshape( sim.fnopts_m(:, 1, :), [6, 1, n] );
-rotMat = Transformation.rotMatToLab( startPosRots(4:6, :) );
+rotMat = Transformation.rotMatToParticle( startPosRots(4:6, :) );
 
-%fopt = pagemtimes( rotMat, fnopts_m(1:3, 1, :) );
-%nopt = pagemtimes( rotMat, fnopts_m(4:6, 1, :) );
+fopt = pagemtimes( rotMat, fnopts_m(1:3, 1, :) );
+nopt = pagemtimes( rotMat, fnopts_m(4:6, 1, :) );
 
-%fopt = reshape( fopt, [3, n] );
-%nopt = reshape( nopt, [3, n] );
+fopt = reshape( fopt, [3, n] );
+nopt = reshape( nopt, [3, n] );
 
-fopt = reshape( fnopts_m(1:3, 1, :), [3, n] );
-nopt = reshape( fnopts_m(4:6, 1, :), [3, n] );
+% Plotting the forces and torques in particles system
+% fopt = reshape( fnopts_m(1:3, 1, :), [3, n] );
+% nopt = reshape( fnopts_m(4:6, 1, :), [3, n] );
 
 nexttile(1);
 plot(angles * 180 / pi, fopt(1, :) * 1e-12); hold on

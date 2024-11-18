@@ -6,6 +6,7 @@ classdef Simulation
     fnopts_m
     isBrownianMotion;
     isPreventRotation;
+    isStopOnEquilibrium;
     lambda
     t
     exc
@@ -24,6 +25,7 @@ classdef Simulation
       obj.halfAxes = [1, 1, 1];
       obj.isBrownianMotion = true;
       obj.isPreventRotation = false;
+      obj.isStopOnEquilibrium = false;
       obj.lambda = Constants.lambda;
       startPosRots = [];
 
@@ -143,6 +145,7 @@ classdef Simulation
 
       % Change angle
       dRotMat_m = Transformation.rotMatToLab( dPosRot_m(4:6) );
+      disp(dPosRot_m);
       rotMat_m = rotMat * dRotMat_m;
       newPosRot(4:6) = Transformation.toAngles( rotMat_m );
     end
