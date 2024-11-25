@@ -1,13 +1,13 @@
 %  Forces of prolate spheroids in a plane wave with different starting
 %  rotations
 
-n = 100;
+n = 50;
 
-halfAxes = [250, 250, 750];
+halfAxes = [750, 750, 250];
 
 startPosRots = zeros(6, n);
-angles = linspace(-pi, pi, n);
-startPosRots(5, :) = angles;
+angles = linspace(-pi/2, pi/2, n);
+startPosRots(4, :) = angles;
 
 t = 0:0.005:0.005;
 exc = planewave2( [1, 0, 0], [0, 0, 1] );

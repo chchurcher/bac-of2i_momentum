@@ -2,8 +2,11 @@ function [e, h] = laguerreGaussFun( pos_m, k1, Z1, w0, AB )
 % FIELDS2 - Electromagnetic fields for a laguerre gauss beam
 % 
 % Input
-%    pt     :  integration points
-%    k0     :  wavelength of light in vacuum
+%    pos_m  :  integration points
+%    k1     :  wavelength of light
+%    Z1     :  wave impedance
+%    w0     :  beam waist
+%    AB     :  polarization
 %  Output
 %    e      :  electric field
 %    h      :  magnetic field

@@ -8,6 +8,7 @@ classdef Constants
         w0 = 4.78e3
         lambda = 532
         v_fluid = 0.3e6
+        lgScaling = 0.009703
     end
 
     methods (Static)

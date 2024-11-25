@@ -2,9 +2,9 @@
 %  in a plane wave
 
 
-halfAxes = [100, 100, 300];
+halfAxes = [750, 750, 250] *2;
 startPosRots = [0; 0; 0; pi/3; 0; 0];
-t = 0:0.05:4.5;
+t = 0:0.001:0.1;
 
 exc = planewave2( [1, 0, 0], [0, 0, 1] );
 sim = Simulation( ...
@@ -35,15 +35,15 @@ hold on
 
 n = size(posRots, 2);
 N = 6;
-for i = [1, find(t==0.1), find(t==0.2), find(t==0.3), find(t==0.4), find(t==0.5)]
-%for i = [1, find(t==0.5), find(t==1), find(t==1.5), find(t==2), find(t==2.5), find(t==3), find(t==3.5), find(t==4), find(t==4.5)]
+%for i = [1, find(t==0.1), find(t==0.2), find(t==0.3), find(t==0.4), find(t==0.5)]
+for i = [1, find(t==0.5), find(t==1), find(t==1.5), find(t==2), find(t==2.5), find(t==3), find(t==3.5), find(t==4), find(t==4.5)]
   p = trisphere( 144, 1 );
   p = transform( p, 'scale', halfAxes * scaling);
   p = transform( p, 'rot', Transformation.rotMatToParticle(posRots(4:6, i)) );
   p = transform( p, 'rot', Transformation.rotMatToLab( [-pi/2, -pi/2, 0] ));
   p = transform( p, 'shift', posRots(1:3, i).' * scaling );
   
-  plot( p, 'FaceColor', [0, 255, 0], 'FaceAlpha', 0.7 ); hold on
+  plot( p, 'FaceColor', [255, 0, 0], 'FaceAlpha', 0.7 ); hold on
 end
 
 %title('Trajectory of a prolate spheroid in a planewave', ...

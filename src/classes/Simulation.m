@@ -126,10 +126,6 @@ classdef Simulation
       %  optical force and torque
       [ fopt, nopt, ~ ] = optforce( sol1 );
       fnopt_m = [ fopt.'; nopt.' ];
-
-      % Scaling of the forces
-      % fnopt_m = 16.5 * fnopt_m;
-
     end
 
     function newPosRot = particleStep( obj, actPosRot, fnopt_m, dt )
