@@ -7,7 +7,7 @@ k = 2*pi/lambda;
 AB = [1, 1i];
 AB = AB .* (1 / (sqrt(2)));
 AB = AB .* Constants.lgScaling;
-% AB = AB .* sqrt(1.65);
+AB = AB .* sqrt(1.65 * 1e9);
 
 %% Calculation of the fields
 xyz = linspace(-5*lambda, 5*lambda, n);

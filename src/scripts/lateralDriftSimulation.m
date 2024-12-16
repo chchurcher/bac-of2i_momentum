@@ -47,6 +47,10 @@ gradient2 = [zeros(1, m); 1-ls; ls];
 gradient = [gradient1, gradient2(:, 2:end)];
 
 figure
+t = tiledlayout('flow','TileSpacing','compact');
+title(t, 'Settling of a prolate spheroid rotated around the y-axis', ...
+    'Interpreter', 'latex', 'FontSize', 14)
+nexttile
 for i = 1:n
   plot(sim.posRots(1, :, i)*1e-6, sim.posRots(3, :, i)*1e-6, ...
     'color', gradient(:, i), ...
@@ -58,11 +62,19 @@ endPos = sim.posRots(1:3, end, :);
 endPos = reshape( endPos, [3, n] ) * 1e-6;
 plot(endPos(1, :), endPos(3, :), 'k--*');
 
-title('Settling of a prolate spheroid rotated around the y-axis')
-xlabel('x / mm')
-ylabel('z / mm')
+ax = gca;
+ax.FontSize = 10;
+
+xlabel('$x\ /\ \mathrm{mm}$', ...
+    'Interpreter', 'latex', 'FontSize', 12)
+ylabel('$z\ /\ \mathrm{mm}$', ...
+    'Interpreter', 'latex', 'FontSize', 12)
 angleStrings = arrayfun(@(num) sprintf('%.1f', num), ...
   startPosRots(5, :)*180/pi, ...
   'UniformOutput', false);
-legend(angleStrings)
+
+lg = legend(angleStrings, ...
+    'Interpreter', 'latex', 'FontSize', 12);
+lg.Layout.Tile = 'East';
+
 grid on

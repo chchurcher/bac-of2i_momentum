@@ -91,6 +91,7 @@ classdef Simulation
 
           actPosRot = obj.posRots(:, j-1, i);
           fnopt_m = obj.calcForce( actPosRot, bem, tau );
+          fnopt_m = fnopt_m * 1e-3;  % Convert pN into nN
           obj.fnopts_m(:, j-1, i) = fnopt_m;
           
           dt = obj.t(j) - obj.t(j-1);
