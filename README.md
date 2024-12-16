@@ -53,7 +53,7 @@ halfAxes = [100, 100, 200]
 opticalTrapping
 ```
 
-Load already run simulations:
+Load already run simulations (can be found in the `include_results` branch):
 ```matlab
 load('.\results\opticalTrapping\256be11n0muX20muX100a100b300c.mat')
 ```
