@@ -1,0 +1,13 @@
+All forces in forcesCompareFplane folder are scaled by:
+fnopt_m = 1.65e-5 * fnopt_m;
+
+
+In forcesFocusPlane:
+Unscaled
+
+
+optical trapping:
+fnopt_m = 16.5 * fnopt_m;
+
+planeWave:
+unscaled exept for 144be
